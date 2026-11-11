@@ -63,7 +63,25 @@ function route(keepScroll = false) {
     view = h('div', { class: 'err' }, 'Something went wrong drawing this page: ' + e.message);
   }
   app.replaceChildren(view);
+  document.body.dataset.page = page;
+  markScrollables();
   if (keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
+}
+
+// Wide tables scroll sideways on small screens: fade the edge and show a hint until the end is reached.
+function markScrollables() {
+  for (const w of app.querySelectorAll('.tablewrap')) {
+    const update = () => {
+      const scrolls = w.scrollWidth > w.clientWidth + 4;
+      w.classList.toggle('scrolls', scrolls);
+      w.classList.toggle('at-end', w.scrollLeft + w.clientWidth >= w.scrollWidth - 4);
+      let hint = w.previousElementSibling;
+      if (!hint || !hint.classList.contains('swipe-hint')) { hint = h('div', { class: 'swipe-hint', 'aria-hidden': 'true' }, 'Swipe for more →'); w.before(hint); }
+      hint.classList.toggle('show', scrolls && !w.classList.contains('at-end'));
+    };
+    if (!w.dataset.watched) { w.dataset.watched = '1'; w.addEventListener('scroll', update, { passive: true }); new ResizeObserver(update).observe(w); }
+    update();
+  }
 }
 
 // "My team" highlight: chosen per viewer and remembered on this device only.
@@ -127,7 +145,7 @@ async function main() {
     if (initials) document.getElementById('logo-text').textContent = initials;
     document.title = `${data.league.name} | League Report`;
     const when = new Date(data.generatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-    document.getElementById('updated').textContent = `${data.league.season} season · Week ${data.league.currentWeek}`;
+    document.getElementById('updated').textContent = `${data.league.season} · Week ${data.league.currentWeek}`;
     document.getElementById('updated').title = `Updated ${when}`;
     document.getElementById('foot-left').textContent = `Unofficial fan site. Data from ESPN Fantasy, updated ${when}.`;
     drawChrome();

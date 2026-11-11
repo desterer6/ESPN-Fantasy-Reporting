@@ -71,7 +71,7 @@ function standingsCard(ctx) {
   const sk = streaks(ctx);
   return h('section', { class: 'card' },
     h('h2', {}, 'Standings'),
-    h('table', { class: 'compact' },
+    h('table', { class: 'compact standings' },
       h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'Team'), h('th', { class: 'c' }, 'W-L'), h('th', { class: 'r' }, 'PF'), h('th', { class: 'c' }, 'Strk'))),
       h('tbody', {}, st.map(r => h('tr', { class: r.rid === ctx.meRid ? 'mine' : '' },
         h('td', { class: 'rk' }, r.rank),
