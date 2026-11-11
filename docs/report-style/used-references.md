@@ -24,6 +24,13 @@ Logged from the final published recaps (what David posted, not the drafts).
 
 | Week | Team / manager | Bit used |
 |---|---|---|
+| 7 | Opening | Tucker's administration lasted one week; everyone preparing a title run or contacting their attorney |
+| 7 | David (Dawg Check) | Football gods won't recognize the new name; failed third straight vibe check; vet recommends immediate treatment |
+| 7 | Silas / Graham | Graham back from the dead (🧟); "LADD TO WORSE (get it?)"; Silas researching the 2027 NFL Draft |
+| 7 | Parker / Carson | Parker remembered how to play football; the 0-5 funeral cancelled, demanding a playoff invitation |
+| 7 | CGreer / Ryan | Geneva Convention violation; Wizard ran out of magic, expelled from Hogwarts |
+| 7 | Odom / Tucker | Administration overthrown after seven days; spreading love through violence; lost control of the executive branch; smell of a successful coup |
+| 7 | Gage / Ben | OG king back on the throne; monarchy restored, back in the Oval Office; who storms the Capitol next |
 | 8 | Opening | League turned into a federal crime scene; midfield gauntlet |
 | 8 | David (Dawg Check) | Call the vet, the dawg is actively dying; failed its fourth straight vibe check; vet discussing end-of-life options |
 | 8 | Silas (Ladd News Bears) | Ladd News gone from bad to worse; seeking a federal bailout from the commissioner |
@@ -76,7 +83,9 @@ Logged from the final published recaps (what David posted, not the drafts).
 
 ## Overused already (rest these first)
 
-- Geneva Convention: Yellowstone Week 8 and FF Week 10 matchup to watch.
+- Geneva Convention: FF Week 7, Yellowstone Week 8 and FF Week 10 matchup to watch (three times in four weeks).
+- Vet/dying-dog and vibe-check jokes for Dawg Check: Weeks 7, 8 and 9. Rest them.
+- Wizard/Harry Potter for Ryan: Week 7 (expelled from Hogwarts) and Week 8 (back from Azkaban).
 - Political/election framing: it's the core premise for Tucker and Lathan/Sam, so keep the premise
   but find new angles (debates, polls, recounts, impeachment, term limits, inauguration).
 - Unemployment/workforce jokes: Silas Week 9, the Felons in Week 9, and Beazness in Week 9 rankings.
