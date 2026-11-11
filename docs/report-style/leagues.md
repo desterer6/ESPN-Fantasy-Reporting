@@ -13,10 +13,10 @@ Track organizations by manager, not by team name. Update this file each week wit
 | Gage | Im No Longer in RA (was Im in RA) | 8-1 luck box winning with suspiciously low scores; "lottery without a ticket" |
 | Carson | Waddle Deez Nuts | |
 | Ben | Bentonville Football Team | Loses shootouts despite big scores |
-| Ryan | Waiver Wizard | The Wizard, scraping into the 8th seed |
-| Parker | PARKANSAS | Snatching defeat from the jaws of victory; cancelled comeback tour |
+| Ryan | Waiver Wizard | Returned from Azkaban in Week 8; scraped into the 8th seed in Week 9 |
+| Parker ("PWillis") | PARKANSAS | Briefly faked a comeback in Week 8; snatching defeat from the jaws of victory; cancelled comeback tour |
 | David | Dawg Check 🐶✅ | Franchise crisis, losing streak; the veterinarian has stopped answering |
-| Graham | Dirty Graham | Lineup blunders (benched Stroud's 35.36 in Week 9), negative defenses |
+| Graham ("DIRTY") | Dirty Graham | Lineup blunders (benched Stroud's 35.36 in Week 9), negative defenses |
 | Silas | Ladd News Bears | Ladd News Network losing its cable deals; bottom of the league |
 
 ## Yellowstone Ranch - Fayetteville (Sleeper)
@@ -26,7 +26,7 @@ Track organizations by manager, not by team name. Update this file each week wit
 
 | Manager | Team (Sleeper user) | Running storyline |
 |---|---|---|
-| Lathan | K9 Unit (lgregg5) | Undefeated commissioner and dictator; 9-0 in his presidential bunker |
+| Lathan ("Dictator Gregg", "COMMISH") | K9 Unit (lgregg5) | Undefeated commissioner and dictator; conspiracy theories that he orchestrates Clonch's misery; 9-0 in his presidential bunker |
 | Sam | Team SamYounger | The revolution organizing the opposition; six-game streak ended by Manny in Week 9 |
 | Folger | Joshing Around (ryanfolger2000) | Four straight wins |
 | Grant | Sippin on Charbonnet (gmoneyblanch) | Won Week 9 by 0.20, "an accounting discrepancy" |
@@ -35,10 +35,10 @@ Track organizations by manager, not by team name. Update this file each week wit
 | Manny | FlippingNixForMansa Musa (mannyterminella) | Swung a 151-point sledgehammer at the revolution; benched Stroud's 35.36 |
 | Noah | Frick what is this (noahterm) | |
 | Clonch | Team ClonchShell | FREE CLONCH: huge PF, terrible record, a statistical anomaly for peer review |
-| Wingfield | just wingin' it (zwingfield) | Former commissioner; started 4-0, then lost five straight (the AI bubble) |
+| Wingfield ("PAST COMMISH") | just wingin' it (zwingfield) | Former commissioner; started 4-0, then lost five straight (the AI bubble) |
 | Garrett | Finding Nico (Gsansom71) | Climbed out of last place in Week 9 |
 | Andrew | Team abart28 | Lost by 0.20 and wants an itemized receipt |
-| Ben | FELONS 🚬 (bencampbell479) | The Felons are attempting to enter the legitimate workforce |
+| Ben | FELONS 🚬 (bencampbell479) | Escaped federal custody in Week 8; the Felons are attempting to enter the legitimate workforce |
 | Jay (JÆ) | Beazness (beazness) | Dead last, delisted from the New York Stock Exchange, filed for unemployment |
 
 David manages a team in both leagues (Dawg Check in Fayetteville's Finest, TE SZN in Yellowstone).
