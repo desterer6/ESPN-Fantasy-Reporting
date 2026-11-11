@@ -1,8 +1,8 @@
 // Service worker: makes the site installable and lets it open with no signal.
 // Network first for everything, so visitors always get the latest scores and code when online;
 // the cached copy is only used when the network is unavailable.
-const CACHE = 'league-report-v1';
-const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'manifest.webmanifest'];
+const CACHE = 'league-report-v2';
+const SHELL = ['./', 'index.html', 'css/style.css', 'js/app.js', 'js/theme.js', 'manifest.webmanifest'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

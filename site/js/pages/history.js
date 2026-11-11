@@ -1,5 +1,5 @@
 import * as A from '../analytics.js';
-import { h, svg, f1, attachTip, esc, heat, SERIES, section, sortableTable } from '../ui.js';
+import { h, svg, f1, attachTip, esc, heat, SERIES, meColor, cssVar, section, sortableTable } from '../ui.js';
 import { label, labelHtml, matchupList } from './common.js';
 
 export function renderHistory(ctx) {
@@ -20,7 +20,7 @@ function rankChart(ctx) {
   const chips = h('div', { style: { marginBottom: '8px' } });
 
   const colorOf = rid => {
-    if (rid === ctx.meRid) return SERIES[0];
+    if (rid === ctx.meRid) return meColor();
     const others = [...pinned].filter(r => r !== ctx.meRid);
     const i = others.indexOf(rid);
     return i >= 0 ? SERIES[1 + (i % (SERIES.length - 1))] : null;
@@ -34,22 +34,22 @@ function rankChart(ctx) {
     for (const rid of order) {
       const col = colorOf(rid), on = col != null;
       const pts = hist[rid].map((p, i) => `${X(i)},${Y(p.rank)}`).join(' ');
-      s.append(svg('polyline', { points: pts, fill: 'none', stroke: on ? col : '#5c6f86', 'stroke-width': on ? (rid === ctx.meRid ? 3.2 : 2.4) : 1.4,
+      s.append(svg('polyline', { points: pts, fill: 'none', stroke: on ? col : cssVar('--chart-dim'), 'stroke-width': on ? (rid === ctx.meRid ? 3.2 : 2.4) : 1.4,
         opacity: on ? 1 : 0.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
       hist[rid].forEach((p, i) => {
-        const c = svg('circle', { cx: X(i), cy: Y(p.rank), r: on ? 3.2 : 2, fill: on ? col : '#5c6f86', opacity: on ? 1 : 0.6 });
+        const c = svg('circle', { cx: X(i), cy: Y(p.rank), r: on ? 3.2 : 2, fill: on ? col : cssVar('--chart-dim'), opacity: on ? 1 : 0.6 });
         const hit = svg('circle', { cx: X(i), cy: Y(p.rank), r: 9, fill: 'transparent', style: 'cursor:pointer' });
         attachTip(hit, () => `${labelHtml(ctx, rid)}<br><span class="mut">After week ${p.week}</span><br>Rank <b>#${p.rank}</b> · ${p.w}-${p.l}${p.t ? '-' + p.t : ''} · ${f1(p.pf)} PF`);
         s.append(c, hit);
       });
       const last = hist[rid][hist[rid].length - 1];
-      s.append(svg('text', { x: W - R + 8, y: Y(last.rank) + 3.5, style: `fill:${on ? col : '#9fb0c3'};font-weight:${on ? 700 : 500}` }, ctx.name(rid)));
+      s.append(svg('text', { x: W - R + 8, y: Y(last.rank) + 3.5, style: `fill:${on ? col : cssVar('--chart-dim-text')};font-weight:${on ? 700 : 500}` }, ctx.name(rid)));
     }
     holder.replaceChildren(s);
     chips.replaceChildren(...ctx.rids.map(rid => {
       const col = colorOf(rid);
       return h('span', { class: 'chip' + (col ? ' on' : ''), onclick: () => { pinned.has(rid) ? pinned.delete(rid) : (pinned.size < 6 && pinned.add(rid)); draw(); } },
-        h('i', { style: { background: col || '#5c6f86' } }), ctx.name(rid));
+        h('i', { style: { background: col || 'var(--chart-dim)' } }), ctx.name(rid));
     }));
   }
   draw();

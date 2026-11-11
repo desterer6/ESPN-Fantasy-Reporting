@@ -77,7 +77,7 @@ function summarySection(ctx, weeks) {
         { key: 'med', label: 'vs median', align: 'c', sort: r => A.winsOf(r.median), cell: r => A.fmtRec(r.median) },
         { key: 'exp', label: 'Exp W', align: 'r', title: 'Wins expected on an average schedule', sort: r => r.expectedWins, cell: r => r.expectedWins.toFixed(1) },
         { key: 'luck', label: 'Luck', align: 'r', title: 'Actual wins minus expected wins (green = lucky)', sort: r => r.luck,
-          cell: r => h('span', { style: { color: r.luck > 0.5 ? '#7fd1a0' : r.luck < -0.5 ? '#f4b183' : '#9fb0c3' } }, signed(r.luck)) },
+          cell: r => h('span', { style: { color: r.luck > 0.5 ? 'var(--good)' : r.luck < -0.5 ? 'var(--warn2)' : 'var(--chart-dim-text)' } }, signed(r.luck)) },
       ],
     }));
   }

@@ -132,6 +132,8 @@ async function main() {
     document.getElementById('foot-left').textContent = `Unofficial fan site. Data from ESPN Fantasy, updated ${when}.`;
     drawChrome();
     window.addEventListener('hashchange', () => route());
+    // Charts read theme colors when drawn, so redraw on a theme switch.
+    document.addEventListener('themechange', () => { drawChrome(); route(true); });
     route();
   } catch (e) {
     console.error(e);
