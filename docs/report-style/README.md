@@ -9,6 +9,7 @@ survives between sessions. Read these files before writing anything.
 | [leagues.md](leagues.md) | Who manages which team in each league, and the running storylines |
 | [power-rankings.md](power-rankings.md) | The Option B formula, how to run it, and the open questions |
 | [matchup-to-watch.md](matchup-to-watch.md) | How the spotlight matchup is picked |
+| [used-references.md](used-references.md) | Every published bit and tier name, plus the freshness rules |
 | [examples/](examples/) | David's published reports, the gold standard for tone |
 
 ## The two leagues are separate
@@ -29,13 +30,14 @@ Both sites refresh final scores Tuesday around 4 AM Central. Pull the latest dat
 1. **Facts.** `node scripts/week-facts.mjs site/data/league.json <week>` (and the same against the
    Yellowstone file). Every score, margin, record, streak and top/dud starter in the recap must come
    from this output. Bench points aren't in the data, so confirm benched blow-ups in the app.
-2. **Recap.** One section per matchup, written in the voice in [voice.md](voice.md).
+2. **Recap.** One section per matchup, written in the voice in [voice.md](voice.md). Check
+   [used-references.md](used-references.md) first so nothing is recycled, and find one current hook from that week.
 3. **Power rankings.** `node scripts/power-rankings.mjs <league.json> <week> --proj proj.json --prev prev.json`.
    Use the computed order and tiers, write fresh tier names, add the movement markers and the
    "intelligence report" paragraph.
 4. **Matchup to watch.** Pick next week's spotlight with [matchup-to-watch.md](matchup-to-watch.md).
 5. **Validate** with the checklist below, then hand David a copy-and-paste block per league.
-6. **Archive.** Save David's final edited version to `examples/` and the scorecard JSON
+6. **Archive.** Save David's final edited version to `examples/`, log its bits in `used-references.md`, and the scorecard JSON
    (`--json`) as next week's `--prev` baseline. His edit, not the draft, is the reference.
 
 ## Validation checklist
@@ -45,7 +47,7 @@ Both sites refresh final scores Tuesday around 4 AM Central. Pull the latest dat
 - Movement markers compare to the last *published* power ranking, not the standings.
 - Playoff talk matches the real bracket (Fayetteville's Finest: top 8 of 12).
 - Projections quoted for Fayetteville's Finest come from ESPN, and for Yellowstone from Sleeper.
-- No running joke is repeated word-for-word from the last two weeks.
+- No comparison, punchline or tier name repeats anything in [used-references.md](used-references.md) from the last 4 weeks.
 
 ## Publishing
 

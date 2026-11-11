@@ -27,7 +27,8 @@ make it worth reading. The published example in [examples/](examples/) beats any
 
 - Use aggressive, ridiculous comparisons (lottery without a ticket, Super PAC donations,
   Geneva Convention, Titanic customer service) instead of generic sports commentary.
-- Running jokes should evolve week to week. Don't repeat the exact punchline.
+- Keep it fresh and current (David's stated goal). Running jokes evolve week to week, and no
+  comparison is reused for at least 4 weeks. See [used-references.md](used-references.md).
 - Intentional nonsense and informal phrasing are welcome ("BROTHER HAS NOW WON", "HOW IS THIS LEGAL⁉").
 - Use ALL CAPS for the outrageous developments, normal case for supporting numbers. Not every sentence is caps.
 - Refer to managers by first name or nickname (Gage, Tucker, Odom, CGreer/Greer, Silas, Repp).
