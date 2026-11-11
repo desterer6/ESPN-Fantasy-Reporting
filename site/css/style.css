@@ -439,3 +439,23 @@ svg.chart .grid-line { stroke: var(--line); stroke-width: 1; }
 .phow-how { grid-column: 1 / -1; font-size: 12px; color: var(--muted); line-height: 1.4; }
 .phow .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 @media (max-width: 420px) { table.compact.power td:nth-child(3), table.compact.power th:nth-child(3) { display: none; } }
+
+/* Matchup to watch */
+.mw .kicker { font: 800 12px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--brand); margin-bottom: 6px; }
+.mw-board { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin: 12px 0 10px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface2); }
+.mw-side { min-width: 0; }
+.mw-side.mw-r { text-align: right; }
+.mw-rank { font: 700 11px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.mw-name { font: 800 22px/1.1 var(--display); margin: 4px 0; overflow-wrap: break-word; }
+.mw-side.me .mw-name { color: var(--brand); }
+.mw-meta { font-size: 12px; color: var(--muted); }
+.mw-num { font: 800 34px/1 var(--display); margin-top: 10px; font-variant-numeric: tabular-nums; }
+.mw-numlabel { font: 700 10px/1.4 var(--display); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.mw-vs { font: 800 16px/1 var(--display); color: #fff; background: var(--brand); border-radius: 50%; width: 40px; height: 40px; display: grid; place-items: center; letter-spacing: .05em; }
+.mw-why { margin: 0 0 6px; padding-left: 18px; font-size: 14px; line-height: 1.5; }
+@media (max-width: 520px) {
+  .mw-board { gap: 8px; padding: 12px 10px; }
+  .mw-name { font-size: 18px; }
+  .mw-num { font-size: 28px; }
+  .mw-vs { width: 32px; height: 32px; font-size: 13px; }
+}

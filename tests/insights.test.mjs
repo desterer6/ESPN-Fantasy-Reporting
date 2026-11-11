@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData } from '../scripts/espn.mjs';
 import * as A from '../site/js/analytics.js';
-import { powerRankings, powerIndex, POWER_CATEGORIES, POWER_WEIGHTS } from '../site/js/insights.js';
+import { powerRankings, powerIndex, matchupToWatch, tickerItems, POWER_CATEGORIES, POWER_WEIGHTS } from '../site/js/insights.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const read = f => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
@@ -45,6 +45,19 @@ ok(!pr2.projAvailable && pr2.rows.every(r => r.c.roster === 0), 'missing project
 const pi = powerIndex(ctx);
 ok(pi.length === 8 && pi.every(r => Number.isInteger(r.move)), 'movement computed vs previous week');
 ok(pi.reduce((a, r) => a + r.move, 0) === 0, 'moves balance out');
+
+// Matchup to watch: a real game from the week after the last final one, chosen by the stated formula.
+const mw = matchupToWatch(ctx);
+ok(mw && mw.week === pr.week + 1, 'matchup to watch is for the next week');
+const nextGames = data.weeks.find(w => w.week === mw.week).matchups.filter(m => m.teams.length === 2);
+ok(nextGames.some(m => m.teams.map(t => t.rid).sort().join() === [mw.a.rid, mw.b.rid].sort().join()), 'picked pair actually plays that week');
+const rowOf = Object.fromEntries(pr.rows.map(r => [r.rid, r]));
+const watchOf = m => { const [a, b] = m.teams; const gap = Math.abs(a.proj - b.proj); return 0.6 * (rowOf[a.rid].score + rowOf[b.rid].score) / 2 + 0.4 * 100 * Math.max(0, 1 - gap / 30); };
+close(mw.watch, Math.max(...nextGames.map(watchOf)), 'picked the highest watch score');
+ok(mw.why.length >= 1, 'gives reasons');
+ok(tickerItems(ctx).some(i => i.tag === `WEEK ${mw.week} MATCHUP`), 'matchup appears in the ticker');
+const preseason = A.prepare({ ...data, weeks: data.weeks.map(w => ({ ...w, complete: false })) });
+ok(matchupToWatch(preseason) === null, 'nothing before any week is final');
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

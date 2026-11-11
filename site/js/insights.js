@@ -146,6 +146,8 @@ export function tickerItems(ctx, content = {}) {
       items.push({ tag: `WEEK ${last}`, text: `Nail-biter: ${ctx.name(s.closest.winner)} edged ${ctx.name(s.closest.loser)} by ${f1(s.closest.margin)}`, href: '#/scores' });
       if (s.mvp && ctx.players[s.mvp.id]) items.push({ tag: `WEEK ${last}`, text: `Player of the week: ${ctx.players[s.mvp.id].n} (${f1(s.mvp.pts)}) for ${ctx.name(s.mvp.rid)}`, href: '#/scores' });
     }
+    const mw = matchupToWatch(ctx);
+    if (mw) items.push({ tag: `WEEK ${mw.week} MATCHUP`, text: `${ctx.name(mw.a.rid)} vs. ${ctx.name(mw.b.rid)}`, href: '#/' });
     const sk = streaks(ctx);
     for (const rid of ctx.rids) {
       if (sk[rid].kind === 'W' && sk[rid].n >= 3) items.push({ tag: 'STREAK', text: `${ctx.name(rid)} has won ${sk[rid].n} straight`, href: '#/standings' });
@@ -153,4 +155,52 @@ export function tickerItems(ctx, content = {}) {
     }
   }
   return items;
+}
+
+// ---- Matchup to watch ---------------------------------------------------------------------------
+// Once a week is final (after Monday night), pick the most compelling game of the next week:
+//   watch = 60% quality (average power score of the two teams) + 40% closeness
+//   closeness = 100 when ESPN projects a dead heat, falling to 0 at a 30-point projected gap
+//   (power-score gap is used instead when projections aren't out yet).
+export function matchupToWatch(ctx) {
+  const last = ctx.completed[ctx.completed.length - 1];
+  if (last == null) return null;
+  const entry = ctx.data.weeks.find(w => w.week === last + 1);
+  const games = (entry?.matchups || []).filter(m => m.teams.length === 2);
+  if (!games.length) return null;
+  const pr = powerRankings(ctx, last);
+  const row = Object.fromEntries(pr.rows.map(r => [r.rid, r]));
+  const sk = streaks(ctx);
+  const scored = games.map(m => {
+    const [a, b] = m.teams;
+    const ra = row[a.rid], rb = row[b.rid];
+    if (!ra || !rb) return null;
+    const useProj = a.proj != null && b.proj != null;
+    const gap = useProj ? Math.abs(a.proj - b.proj) : Math.abs(ra.score - rb.score);
+    const quality = (ra.score + rb.score) / 2;
+    const closeness = 100 * Math.max(0, 1 - gap / 30);
+    return { m, a, b, ra, rb, useProj, gap, quality, closeness, watch: 0.6 * quality + 0.4 * closeness };
+  }).filter(Boolean);
+  if (!scored.length) return null;
+  scored.sort((x, y) => y.watch - x.watch);
+  const g = scored[0];
+  // Season series between the two so far.
+  const h2h = [];
+  for (const w of ctx.completed) if (ctx.opp[w]?.[g.a.rid] === g.b.rid) h2h.push({ week: w, a: ctx.score[w][g.a.rid], b: ctx.score[w][g.b.rid] });
+  const side = (t, r) => ({
+    rid: t.rid, rank: r.rank, score: r.score, rec: { w: r.w, l: r.l, t: r.t }, pf: r.pf, recentAvg: r.recentAvg,
+    proj: t.proj ?? null, live: entry.complete || t.pts > 0 ? t.pts : null, streak: sk[t.rid],
+  });
+  const why = [];
+  if (g.ra.rank <= 4 && g.rb.rank <= 4) why.push(`Two top-4 teams in the power rankings (#${g.ra.rank} vs #${g.rb.rank}).`);
+  else why.push(`Power ranks #${g.ra.rank} and #${g.rb.rank}, combined ${f1(g.ra.score + g.rb.score)} of 200.`);
+  if (g.useProj) why.push(g.gap < 3 ? `ESPN projects a near coin flip: ${f1(g.gap)} points apart.` : `ESPN projects just ${f1(g.gap)} points between them.`);
+  if (h2h.length) {
+    const aw = h2h.filter(x => x.a > x.b).length, bw = h2h.filter(x => x.b > x.a).length;
+    why.push(aw === bw ? `Season series tied ${aw}-${bw}.` : `${ctx.name(aw > bw ? g.a.rid : g.b.rid)} won the earlier meeting${h2h.length > 1 ? 's' : ''} ${Math.max(aw, bw)}-${Math.min(aw, bw)}.`);
+  }
+  return {
+    week: last + 1, complete: !!entry.complete, inProgress: !entry.complete && games.some(m => m.teams.some(t => t.pts > 0)),
+    a: side(g.a, g.ra), b: side(g.b, g.rb), useProj: g.useProj, gap: g.gap, watch: g.watch, h2h, why,
+  };
 }

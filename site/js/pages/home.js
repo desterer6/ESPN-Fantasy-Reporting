@@ -1,7 +1,7 @@
 import * as A from '../analytics.js';
 import { h, f1, signed } from '../ui.js';
 import { excerpt } from '../markdown.js';
-import { weekStory, streaks, powerIndex } from '../insights.js';
+import { weekStory, streaks, powerIndex, matchupToWatch } from '../insights.js';
 import { byTheNumbers } from './reports.js';
 import { newsList, submitBox } from './news.js';
 
@@ -9,7 +9,7 @@ import { newsList, submitBox } from './news.js';
 export function renderHome(ctx, content) {
   const last = ctx.completed[ctx.completed.length - 1];
   return h('div', { class: 'layout' },
-    h('div', {}, leadStory(ctx, content, last), byTheNumbers(ctx, last), newsCard(content), leadersCard(ctx)),
+    h('div', {}, leadStory(ctx, content, last), matchupCard(ctx), byTheNumbers(ctx, last), newsCard(content), leadersCard(ctx)),
     h('aside', {}, standingsCard(ctx), powerCard(ctx)));
 }
 
@@ -36,6 +36,26 @@ function leadStory(ctx, content, last) {
       `${ctx.name(s.blowout.winner)} rolled ${ctx.name(s.blowout.loser)} by ${f1(s.blowout.margin)}, while ` +
       `${ctx.name(s.closest.winner)} survived ${ctx.name(s.closest.loser)} by just ${f1(s.closest.margin)}.`),
     h('a', { class: 'more', href: `#/scores/${last}` }, 'Full scoreboard →'));
+}
+
+// Matchup to watch: the best game of the coming week, picked once the previous week is final.
+function matchupCard(ctx) {
+  const mw = matchupToWatch(ctx);
+  if (!mw) return null;
+  const showLive = mw.complete || mw.inProgress;
+  const side = (t, align) => h('div', { class: 'mw-side mw-' + align + (t.rid === ctx.meRid ? ' me' : '') },
+    h('div', { class: 'mw-rank' }, `#${t.rank} in power`),
+    h('div', { class: 'mw-name' }, ctx.name(t.rid)),
+    h('div', { class: 'mw-meta' }, `${A.fmtRec(t.rec)} · ${t.streak.label} · ${f1(t.recentAvg)} last 3`),
+    h('div', { class: 'mw-num' }, showLive ? f1(t.live ?? 0) : t.proj != null ? f1(t.proj) : f1(t.score)),
+    h('div', { class: 'mw-numlabel' }, showLive ? (mw.complete ? 'Final' : 'Live') : t.proj != null ? 'Projected' : 'Power score'));
+  return h('section', { class: 'card mw' },
+    h('div', { class: 'kicker' }, 'Matchup to Watch'),
+    h('h2', {}, `Week ${mw.week}: ${ctx.name(mw.a.rid)} vs. ${ctx.name(mw.b.rid)}`),
+    h('div', { class: 'mw-board' }, side(mw.a, 'l'), h('div', { class: 'mw-vs' }, 'VS'), side(mw.b, 'r')),
+    h('ul', { class: 'mw-why' }, mw.why.map(w => h('li', {}, w))),
+    h('p', { class: 'note' }, 'Picked automatically: 60% the two teams’ average power score, 40% how close ESPN projects the game.'),
+    h('a', { class: 'more', href: `#/scores/${mw.week}` }, `Week ${mw.week} scoreboard →`));
 }
 
 function newsCard(content) {
