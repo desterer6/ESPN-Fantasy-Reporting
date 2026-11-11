@@ -84,6 +84,8 @@ nav.mainnav a.on { color: #fff; border-bottom-color: var(--gold); }
 .ticker-track > span { display: inline-flex; height: 100%; }
 .ticker-item { display: inline-flex; align-items: center; height: 100%; gap: 8px; padding: 0 22px; font-size: 13px; font-weight: 600; border-right: 1px solid var(--ticker-line); }
 .ticker-item b { font: 800 12px/1 var(--display); letter-spacing: .1em; color: var(--brand); }
+.ticker-item span { font-weight: 500; }
+.ticker-item .tm { font-weight: 800; }
 .ticker-item:hover span { text-decoration: underline; }
 @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 @keyframes pulse { 50% { opacity: .35; } }

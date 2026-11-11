@@ -109,7 +109,12 @@ function drawTicker() {
   const items = tickerItems(ctx, content);
   const el = document.getElementById('ticker');
   if (!items.length) { el.hidden = true; return; }
-  const one = () => items.map(it => h('a', { class: 'ticker-item', href: it.href }, h('b', {}, it.tag), h('span', {}, it.text)));
+  // Team names stand out in bold wherever they appear (headlines, scores, streaks). Longest first so
+  // a name that contains another name wins.
+  const names = [...new Set(ctx.teams.map(t => t.name).filter(Boolean))].sort((a, b) => b.length - a.length);
+  const re = names.length ? new RegExp(`(${names.map(n => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi') : null;
+  const withTeams = text => (re ? String(text).split(re).map((part, i) => (i % 2 ? h('strong', { class: 'tm' }, part) : part)) : text);
+  const one = () => items.map(it => h('a', { class: 'ticker-item', href: it.href }, h('b', {}, it.tag), h('span', {}, withTeams(it.text))));
   const track = document.getElementById('ticker-track');
   // Two copies so the loop is seamless; the copy is hidden from screen readers.
   track.replaceChildren(h('span', {}, one()), h('span', { 'aria-hidden': 'true' }, one()));
