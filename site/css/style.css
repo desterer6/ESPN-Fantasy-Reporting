@@ -411,3 +411,29 @@ svg.chart .grid-line { stroke: var(--line); stroke-width: 1; }
 .swipe-hint.show { display: block; }
 .mast-meta #updated { white-space: nowrap; }
 @media (max-width: 360px) { .me-pick select { max-width: 120px; } .mast-controls { gap: 6px; } }
+
+/* ---- Power rankings ------------------------------------------------------------------- */
+.plist { margin-top: 6px; }
+.ptier { font: 700 11px/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin: 14px 0 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.ptier:first-child { margin-top: 4px; padding-top: 0; border-top: 0; }
+.prow { display: flex; gap: 10px; align-items: flex-start; padding: 8px 6px; border-radius: 6px; }
+.prow.mine { background: var(--mine-tint); }
+.prk { font: 800 20px/1 var(--display); color: var(--muted); width: 26px; text-align: right; padding-top: 2px; flex: none; }
+.pmain { flex: 1; min-width: 0; }
+.ptop { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; }
+.pnm { font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.prec { font-size: 12px; color: var(--muted); }
+.pscore { font: 800 18px/1 var(--display); min-width: 40px; text-align: right; }
+.pbar { display: flex; height: 12px; border-radius: 3px; overflow: hidden; background: var(--surface2); }
+.pbar div { height: 100%; cursor: pointer; border-right: 1px solid var(--surface); }
+.pbar div:last-child { border-right: 0; }
+@media (pointer: coarse) { .pbar { height: 16px; } }
+.pcell { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+.pcell small { font-size: 10.5px; color: var(--muted); font-weight: 500; }
+.phow { margin: 4px 0 10px; }
+.phow-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+.phow-name { font-weight: 600; font-size: 13px; }
+.phow-pts { font: 700 13px/1.4 var(--display); letter-spacing: .04em; color: var(--muted); text-align: right; }
+.phow-how { grid-column: 1 / -1; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.phow .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+@media (max-width: 420px) { table.compact.power td:nth-child(3), table.compact.power th:nth-child(3) { display: none; } }

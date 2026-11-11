@@ -49,6 +49,9 @@ jobs:
       - name: Test reports, news and Markdown (offline fixture)
         run: node tests/content.test.mjs
 
+      - name: Test power rankings (offline fixture)
+        run: node tests/insights.test.mjs
+
       - name: Collect weekly reports and approved news
         env:
           GITHUB_TOKEN: ${{ github.token }}

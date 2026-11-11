@@ -58,10 +58,18 @@ export function regularPeriods(league) {
   return out;
 }
 
+const statFor = (entry, sp, source) =>
+  (entry.playerPoolEntry?.player?.stats || []).find(s => s.scoringPeriodId === sp && s.statSourceId === source && s.statSplitTypeId === 1);
+
 function playerPoints(entry, sp) {
-  const ppe = entry.playerPoolEntry || {};
-  const stat = (ppe.player?.stats || []).find(s => s.scoringPeriodId === sp && s.statSourceId === 0 && s.statSplitTypeId === 1);
-  return round2(stat ? stat.appliedTotal : ppe.appliedStatTotal ?? 0);
+  const stat = statFor(entry, sp, 0); // statSourceId 0 = actual points
+  return round2(stat ? stat.appliedTotal : entry.playerPoolEntry?.appliedStatTotal ?? 0);
+}
+
+// ESPN's projected points for the player in that scoring period (statSourceId 1), or null if absent.
+function playerProjection(entry, sp) {
+  const stat = statFor(entry, sp, 1);
+  return stat && Number.isFinite(stat.appliedTotal) ? stat.appliedTotal : null;
 }
 
 const round2 = x => Math.round((Number(x) || 0) * 100) / 100;
@@ -78,7 +86,7 @@ export function startersOf(side, sp, players) {
     if (p && !players[id]) {
       players[id] = { n: p.fullName || id, p: POSITION[p.defaultPositionId] || '?', t: PRO_TEAM[p.proTeamId] ?? null };
     }
-    out.push({ id, pts: playerPoints(e, sp) });
+    out.push({ id, pts: playerPoints(e, sp), proj: playerProjection(e, sp) });
   }
   return out;
 }
@@ -112,12 +120,19 @@ export function buildLeagueData({ league, boxByPeriod = {}, leagueId, now = new 
       const sides = [m.home, m.away].filter(Boolean);
       const teams = sides.map(s => {
         const totals = new Map();
+        let proj = 0, projFound = false;
         for (const sp of scoringPeriods) {
           const box = (boxByPeriod[sp] || []).find(b => b.id === m.id);
           const boxSide = box && [box.home, box.away].find(x => x?.teamId === s.teamId);
-          for (const st of startersOf(boxSide, sp, players)) totals.set(st.id, round2((totals.get(st.id) || 0) + st.pts));
+          for (const st of startersOf(boxSide, sp, players)) {
+            totals.set(st.id, round2((totals.get(st.id) || 0) + st.pts));
+            if (st.proj != null) { proj += st.proj; projFound = true; }
+          }
         }
-        return { rid: s.teamId, pts: sidePoints(s, complete), starters: [...totals].map(([id, pts]) => ({ id, pts })) };
+        const team = { rid: s.teamId, pts: sidePoints(s, complete), starters: [...totals].map(([id, pts]) => ({ id, pts })) };
+        // Projected points of the starting lineup (ESPN projections): feeds the power rankings' roster strength.
+        if (projFound) team.proj = round2(proj);
+        return team;
       });
       if (complete && teams.length === 2) {
         const [h, a] = [official[m.home.teamId], official[m.away.teamId]];
