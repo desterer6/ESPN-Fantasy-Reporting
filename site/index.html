@@ -4,23 +4,48 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0f1722">
+  <meta name="theme-color" content="#0b111a">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
   <title>League Report</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f1722'/%3E%3Cpath d='M6 22l7-12 5 8 3-5 5 9z' fill='%23ffd54a'/%3E%3C/svg%3E">
+  <meta name="description" content="Scores, standings, weekly reports and league news.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 4v9c0 8-5.5 13-12 15C9.5 28 4 23 4 15V6z' fill='%23d7263d'/%3E%3Cpath d='M16 6l8 2.7V15c0 5.6-3.6 9.2-8 10.8C11.6 24.2 8 20.6 8 15V8.7z' fill='%230b111a'/%3E%3Ctext x='16' y='20' text-anchor='middle' font-family='Arial Narrow,Arial' font-weight='700' font-size='10' fill='%23f2b705'%3EFF%3C/text%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header class="top">
-    <div class="wrap">
-      <div class="brand"><b id="league-name">League Report</b><span id="updated"></span><label class="me-pick" title="Highlight your team on this device">⭐ <select id="me-select" aria-label="Highlight my team"></select></label></div>
-      <nav class="tabs" id="tabs">
-        <a href="#/" data-tab="home">Home</a>
-        <a href="#/history" data-tab="history">History</a>
-        <a href="#/data/schedule" data-tab="data">Data</a>
-      </nav>
+  <a class="skip" href="#app">Skip to content</a>
+  <header class="mast">
+    <div class="wrap mast-top">
+      <a href="#/" aria-label="Home">
+        <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 2l19 6v14c0 12.5-8.5 20.5-19 24C13.5 42.5 5 34.5 5 22V8z" fill="#d7263d"/>
+          <path d="M24 7.5l13.5 4.3V22c0 9.2-6 15.4-13.5 18.4C16.5 37.4 10.5 31.2 10.5 22V11.8z" fill="#0b111a"/>
+          <text x="24" y="30" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, Arial" font-weight="800" font-size="17" fill="#f2b705" id="logo-text">FF</text>
+        </svg>
+      </a>
+      <div class="mast-title"><span class="kicker">The Official League Report</span><b id="league-name">League Report</b></div>
+      <div class="mast-meta">
+        <span id="updated"></span>
+        <label class="me-pick" title="Highlight your team on this device">⭐ <select id="me-select" aria-label="Highlight my team"></select></label>
+      </div>
     </div>
+    <nav class="wrap mainnav" id="tabs" aria-label="Sections">
+      <a href="#/" data-tab="home">Home</a>
+      <a href="#/scores" data-tab="scores">Scores</a>
+      <a href="#/standings" data-tab="standings">Standings</a>
+      <a href="#/reports" data-tab="reports">Weekly Report</a>
+      <a href="#/news" data-tab="news">News</a>
+      <a href="#/stats" data-tab="stats">Stats Lab</a>
+    </nav>
   </header>
-  <main class="wrap" id="app"><div class="loading">Loading league data…</div></main>
+  <div class="ticker" id="ticker" hidden aria-label="Latest headlines">
+    <div class="ticker-label"><i></i>Latest</div>
+    <div class="ticker-viewport"><div class="ticker-track" id="ticker-track"></div></div>
+  </div>
+  <div class="scorestrip" id="scorestrip" hidden><div class="wrap" id="scorestrip-inner"></div></div>
+  <main class="wrap" id="app" tabindex="-1"><div class="loading">Loading league data…</div></main>
+  <footer class="site-foot"><div class="wrap"><span id="foot-left">Unofficial fan site. Data from ESPN Fantasy, refreshed automatically.</span><span>Team names and scores only. No personal data is collected.</span></div></footer>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

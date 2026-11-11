@@ -12,5 +12,15 @@ const ok = (cond, msg) => { cond ? passed++ : (failed++, console.error('FAIL:', 
 consistencyChecks(data, ok);
 privacyChecks(data, ok);
 
+// Content file (reports + news) must parse, and must not carry personal identifiers.
+const contentPath = path.join(root, 'site/data/content.json');
+if (fs.existsSync(contentPath)) {
+  const content = JSON.parse(fs.readFileSync(contentPath, 'utf8'));
+  ok(Array.isArray(content.reports) && Array.isArray(content.news), 'content.json has reports and news');
+  const text = JSON.stringify(content);
+  for (const k of ['"user"', '"login"', '"email"', '"author_association"']) ok(!text.includes(k), `content.json must not contain ${k}`);
+  ok(!content.newsFormUrl || content.newsFormUrl.startsWith('https://'), 'news form link is https');
+}
+
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

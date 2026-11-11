@@ -6,7 +6,10 @@ on:
     - cron: '50 5 * * 1'     # Sunday ~11:50 PM Central: live scores after Sunday games
     - cron: '0 10 * * 2'     # Tuesday ~4 AM Central: final scores for the week
     - cron: '0 10 * * 5'     # Friday ~4 AM Central: Thursday game + ESPN stat corrections
+    - cron: '0 13,1 * * *'   # 7 AM and 7 PM Central daily: pick up newly approved news stories
   workflow_dispatch: {}       # "Run workflow" button for a manual refresh
+  issues:                     # weekly reports are posted as issues; publish them right away
+    types: [opened, edited, labeled, unlabeled, closed, reopened, deleted]
   push:
     branches: [main]
     paths:
@@ -25,9 +28,14 @@ concurrency:
 
 jobs:
   build:
+    # Issue events only matter for the owner's own issues (weekly reports); ignore everyone else's.
+    if: ${{ github.event_name != 'issues' || github.event.issue.user.login == github.repository_owner }}
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # commit the refreshed league.json
+      contents: write   # commit the refreshed data files
+      issues: read      # read the weekly-report issues
+    outputs:
+      espn: ${{ steps.espn.outcome }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,7 +46,19 @@ jobs:
       - name: Test the ESPN transform (offline fixture)
         run: node tests/transform.test.mjs
 
+      - name: Test reports, news and Markdown (offline fixture)
+        run: node tests/content.test.mjs
+
+      - name: Collect weekly reports and approved news
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/fetch-content.mjs
+
       - name: Fetch league data from ESPN
+        id: espn
+        # If ESPN is down or the cookies expired, still publish new reports/news with the last good scores.
+        # The espn-health job below then fails so GitHub emails the owner.
+        continue-on-error: true
         env:
           ESPN_LEAGUE_ID: ${{ vars.ESPN_LEAGUE_ID }}
           ESPN_SEASON: ${{ vars.ESPN_SEASON }}
@@ -53,11 +73,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/data/league.json
+          git add site/data/league.json site/data/content.json
           if git diff --cached --quiet; then
             echo "No data changes to commit."
           else
-            git commit -m "Update league data"
+            git commit -m "Update league data and content"
             git push
           fi
 
@@ -83,3 +103,14 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  espn-health:
+    # Turns a failed ESPN fetch into a failed run (GitHub emails the owner) after the site is deployed.
+    needs: [build, deploy]
+    if: ${{ always() && needs.build.outputs.espn == 'failure' }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - run: |
+          echo "::error::ESPN fetch failed. Scores were not refreshed. Open the 'Fetch league data from ESPN' step in the build job; if it says 'ESPN refused access', update the ESPN_S2 and SWID secrets."
+          exit 1

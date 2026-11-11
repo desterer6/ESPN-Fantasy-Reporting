@@ -1,0 +1,39 @@
+name: Weekly report (commissioner)
+description: Post the weekly report to the site. Only reports opened by the repository owner are published.
+title: "[Report] Week "
+labels: ["weekly-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Paste your report below and submit. The site updates within a couple of minutes.
+        Formatting: `## Heading`, `**bold**`, `*italic*`, `- list item`, `> quote`, `[link text](https://...)`.
+        To fix a typo, edit this issue. To pull a report off the site, add the **hidden** label or close the issue.
+  - type: input
+    id: week
+    attributes:
+      label: Week
+      description: Week number this report covers.
+      placeholder: "10"
+    validations:
+      required: true
+  - type: input
+    id: headline
+    attributes:
+      label: Headline
+      placeholder: "Chaos at the top as the leader stumbles"
+    validations:
+      required: true
+  - type: input
+    id: season
+    attributes:
+      label: Season
+      description: Optional. Defaults to the current season.
+      placeholder: "2026"
+  - type: textarea
+    id: report
+    attributes:
+      label: Report
+      description: Paste the full report here.
+    validations:
+      required: true
