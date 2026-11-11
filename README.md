@@ -42,7 +42,7 @@ No build step and no dependencies: plain ES modules, Node 18+.
    To find them: sign in at fantasy.espn.com in a desktop browser → Developer tools → Application (Chrome) / Storage (Firefox) → Cookies → `https://fantasy.espn.com`.
    They act like a password for your ESPN account: only ever paste them into GitHub secrets, never into a file, issue, chat or commit. They last about a year; when the workflow fails with "ESPN refused access", refresh them.
 3. **Hosting**: Settings → Pages → Build and deployment → Source: **GitHub Actions**.
-4. Actions tab → *Update data and deploy* → **Run workflow**. The site appears at `https://<username>.github.io/Fayettvilles-Finest-Fantasy/`.
+4. Actions tab → *Update data and deploy* → **Run workflow**. The site appears at `https://<username>.github.io/Fayettevilles-Finest-Fantasy/`.
 
 ## Automatic updates
 
