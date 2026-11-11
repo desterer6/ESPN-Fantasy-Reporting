@@ -26,11 +26,11 @@ export function renderLeagueHistory(ctx, hist, year) {
   return h('div', {}, head,
     h('p', { class: 'dek' }, `${seasons.length} season${seasons.length === 1 ? '' : 's'} on record (${first === last ? first : `${first}–${last}`}), straight from ESPN Fantasy. ${ctx.data.league.season} lives on the Standings tab until it’s over.`),
     h('div', { class: 'controls' }, 'Show', sel),
-    one ? seasonView(one) : overview(hist, seasons));
+    one ? seasonView(one) : overview(ctx, hist, seasons));
 }
 
-function overview(hist, seasons) {
-  return h('div', {}, championsCard(seasons), allTimeCard(hist), recordsCard(hist));
+function overview(ctx, hist, seasons) {
+  return h('div', {}, championsCard(seasons), allTimeCard(ctx, hist), recordsCard(hist));
 }
 
 function championsCard(seasons) {
@@ -52,9 +52,10 @@ function championsCard(seasons) {
       h('tbody', {}, rows))));
 }
 
-function allTimeCard(hist) {
-  const rows = allTime(hist);
-  return section('All-time standings', 'Regular-season records across every past season. Teams are matched by their ESPN team slot and shown with their latest name.',
+function allTimeCard(ctx, hist) {
+  // Show each franchise under its current name when it is still in the league.
+  const rows = allTime(hist).map(r => ({ ...r, name: ctx.byRid[r.id]?.name ?? r.name }));
+  return section('All-time standings', 'Regular-season records across every past season. Teams are matched by their ESPN team slot and shown with this season’s name.',
     sortableTable({
       rows, sortKey: 'titles', stickyIndex: 0,
       columns: [
