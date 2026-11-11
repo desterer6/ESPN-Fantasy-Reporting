@@ -4,6 +4,7 @@
 // Settings (environment variables win over config.json):
 //   ESPN_LEAGUE_ID   league ID (or "leagueId" in config.json)
 //   ESPN_SEASON      season year (or "season" in config.json; default: the current NFL season)
+//   relegation       how many last-place teams get relegated (config.json only; 0 or missing = none)
 //   ESPN_S2, SWID    cookies for a private league. Secrets: never put them in config.json or commit them.
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -70,7 +71,8 @@ try {
     }
   }
 
-  const out = buildLeagueData({ league, boxByPeriod, leagueId });
+  const relegation = Number.isInteger(cfg.relegation) && cfg.relegation > 0 ? cfg.relegation : 0;
+  const out = buildLeagueData({ league, boxByPeriod, leagueId, relegation });
   const dest = path.join(root, 'site', 'data', 'league.json');
   await fs.mkdir(path.dirname(dest), { recursive: true });
 

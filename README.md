@@ -80,6 +80,11 @@ One-time setup (about 5 minutes):
 To approve a story, tick its checkbox. The site picks it up at the next run (twice daily, plus the game-day runs) or right away with Actions → Run workflow.
 Only the Published tab is public; unapproved submissions stay private in your sheet.
 
+## League rules
+
+- **Playoffs:** the bracket size comes from ESPN's league settings (8 teams here), seeded by ESPN. No consolation bracket.
+- **Relegation:** `"relegation": 1` in `config.json` marks last place as relegated. The Playoffs page highlights the team(s) in the relegation zone and shows each team's chance of finishing last. Set it to `0` to turn it off.
+
 ## Automatic updates
 
 The workflow runs Sunday night (live scores), Tuesday early morning (final scores after Monday Night Football), Friday early morning (Thursday game and ESPN stat corrections), twice a day for news, whenever the owner posts or edits a weekly report, on every push that touches the site or scripts, and on demand from the Actions tab.

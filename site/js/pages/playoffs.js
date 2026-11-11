@@ -1,7 +1,7 @@
 import * as A from '../analytics.js';
 import { h, f1, section, sortableTable } from '../ui.js';
 import { label } from './common.js';
-import { playoffSize, currentSeeds, clinchStatus, playoffOdds, bracket, regularSeasonDone, remainingGames } from '../playoffs.js';
+import { playoffSize, relegationCount, relegationStatus, currentSeeds, clinchStatus, playoffOdds, bracket, regularSeasonDone, remainingGames } from '../playoffs.js';
 
 const pctText = p => (p >= 0.995 && p < 1 ? '>99%' : p > 0 && p < 0.005 ? '<1%' : `${Math.round(p * 100)}%`);
 const weeksText = ws => (ws.length > 1 ? `Weeks ${ws[0]}–${ws[ws.length - 1]}` : `Week ${ws[0]}`);
@@ -60,14 +60,19 @@ function raceCard(ctx, seeds, K, source) {
     const s = status[r.rid];
     return s === 'clinched' ? h('span', { class: 'pbadge in' }, 'Clinched') : s === 'eliminated' ? h('span', { class: 'pbadge out' }, 'Eliminated') : r.seed <= K ? h('span', { class: 'pbadge maybe' }, 'In for now') : h('span', { class: 'pbadge chase' }, 'Chasing');
   };
+  const R = relegationCount(ctx);
+  const N = seeds.length;
+  const relStatus = relegationStatus(ctx, seeds, remaining);
+  const inDrop = r => R > 0 && r.seed > N - R;
+  const teamCell = r => [label(ctx, r.rid), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
   const oddsOf = r => (status[r.rid] === 'clinched' ? 1 : status[r.rid] === 'eliminated' ? 0 : odds[r.rid].pct);
   const table = sortableTable({
     sortKey: 'seed', desc: false, stickyIndex: 1,
-    rowClass: r => [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : ''].join(' ').trim(),
+    rowClass: r => [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : '', inDrop(r) ? 'releg' : ''].join(' ').trim(),
     rows: seeds,
     columns: [
       { key: 'seed', label: 'Seed', align: 'c', firstDesc: false, sort: r => r.seed, cell: r => r.seed },
-      { key: 'team', label: 'Team', firstDesc: false, sort: r => ctx.name(r.rid).toLowerCase(), cell: r => label(ctx, r.rid) },
+      { key: 'team', label: 'Team', firstDesc: false, sort: r => ctx.name(r.rid).toLowerCase(), cell: teamCell },
       { key: 'rec', label: 'W-L', align: 'c', sort: r => w(r) * 1000 + r.pf / 100, cell: r => A.fmtRec(r) },
       { key: 'odds', label: 'Odds', align: 'r', title: 'Chance to make the playoffs, from simulating the rest of the regular season', sort: r => oddsOf(r), cell: r => h('span', { class: 'odds' }, h('span', { class: 'track' }, h('i', { style: { width: `${Math.round(oddsOf(r) * 100)}%` } })), h('b', {}, pctText(oddsOf(r)))) },
       { key: 'status', label: 'Status', align: 'c', sort: r => ({ clinched: 3, eliminated: 0 }[status[r.rid]] ?? (r.seed <= K ? 2 : 1)), cell: badge },
@@ -77,9 +82,18 @@ function raceCard(ctx, seeds, K, source) {
     ],
   });
   const weeksLeft = new Set(remaining.map(g => g.week)).size;
+  let relegNote = null;
+  if (R) {
+    const risk = seeds.filter(r => relStatus[r.rid] !== 'safe').map(r => ({ r, p: relStatus[r.rid] === 'relegated' ? 1 : odds[r.rid].relegPct }))
+      .filter(x => x.p >= 0.005).sort((a, b) => b.p - a.p).slice(0, 3);
+    relegNote = h('p', { class: 'releg-note' }, h('b', {}, 'Relegation: '),
+      `${R === 1 ? 'Last place' : `The bottom ${R}`} at the end of the regular season ${R === 1 ? 'is' : 'are'} relegated from the league. `,
+      risk.length ? `Chance of finishing last: ${risk.map(x => `${ctx.name(x.r.rid)} ${pctText(x.p)}`).join(', ')}.` : '');
+  }
   return section('Playoff race',
     `${weeksLeft} regular-season week${weeksLeft === 1 ? '' : 's'} left. The dashed line is the cutoff for the top ${K}. Tap a column to sort.`,
     table,
+    relegNote,
     h('p', { class: 'note' },
       `Seeds ${source === 'espn' ? 'come straight from ESPN, using the league’s tiebreakers' : 'are by record, then points for'}. ` +
       `Odds come from playing out the remaining ESPN schedule ${sims.toLocaleString()} times, with each team scoring like it has so far this season (and ESPN’s projections for the current week), ranked by wins and then points. ` +
@@ -87,10 +101,12 @@ function raceCard(ctx, seeds, K, source) {
 }
 
 function seedsCard(ctx, seeds, K) {
+  const R = relegationCount(ctx), N = seeds.length;
+  const down = r => R > 0 && r.seed > N - R;
   return section('Final seeds', 'Regular-season finish. The dashed line is the playoff cutoff.',
     h('div', { class: 'tablewrap' }, h('table', { class: 'compact' },
       h('thead', {}, h('tr', {}, h('th', { class: 'c' }, 'Seed'), h('th', {}, 'Team'), h('th', { class: 'c' }, 'W-L'), h('th', { class: 'r' }, 'PF'), h('th', { class: 'c' }, ''))),
-      h('tbody', {}, seeds.map(r => h('tr', { class: [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : ''].join(' ').trim() },
-        h('td', { class: 'c' }, r.seed), h('td', { class: 'nm' }, label(ctx, r.rid)), h('td', { class: 'c' }, A.fmtRec(r)), h('td', { class: 'r' }, f1(r.pf)),
+      h('tbody', {}, seeds.map(r => h('tr', { class: [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : '', down(r) ? 'releg' : ''].join(' ').trim() },
+        h('td', { class: 'c' }, r.seed), h('td', { class: 'nm' }, label(ctx, r.rid), down(r) ? h('span', { class: 'rtag' }, 'Relegated') : null), h('td', { class: 'c' }, A.fmtRec(r)), h('td', { class: 'r' }, f1(r.pf)),
         h('td', { class: 'c' }, r.seed <= K ? h('span', { class: 'pbadge in' }, 'In') : h('span', { class: 'pbadge out' }, 'Out'))))))));
 }

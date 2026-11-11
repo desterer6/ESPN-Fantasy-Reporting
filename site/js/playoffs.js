@@ -22,6 +22,9 @@ export function remainingGames(ctx) {
   return out;
 }
 
+// League rule (config.json): how many teams at the bottom get relegated.
+export const relegationCount = ctx => Math.max(0, Math.min(ctx.data.playoffs?.relegation || 0, ctx.rids.length - playoffSize(ctx)));
+
 export const regularSeasonDone = ctx => ctx.completed.includes(regEnd(ctx)) || ctx.data.league.currentWeek > regEnd(ctx);
 
 // Seeding if the season ended today. ESPN's own seeds (which apply the league's tiebreakers) when it
@@ -47,6 +50,24 @@ export function clinchStatus(ctx, rows = A.standings(ctx), remaining = remaining
     const canCatch = rows.filter(o => o.rid !== r.rid && max[o.rid] >= cur[r.rid]).length;
     const surelyAhead = rows.filter(o => o.rid !== r.rid && cur[o.rid] > max[r.rid]).length;
     out[r.rid] = canCatch < K ? 'clinched' : surelyAhead >= K ? 'eliminated' : null;
+  }
+  return out;
+}
+
+// Relegation (bottom R teams), on wins only: 'safe' once at least R teams can no longer catch you
+// from below, 'relegated' once at least (N - R) teams are certain to finish ahead.
+export function relegationStatus(ctx, rows = A.standings(ctx), remaining = remainingGames(ctx)) {
+  const R = relegationCount(ctx);
+  const out = {};
+  if (!R) return out;
+  const left = Object.fromEntries(ctx.rids.map(r => [r, 0]));
+  for (const g of remaining) { left[g.a]++; left[g.b]++; }
+  const cur = Object.fromEntries(rows.map(r => [r.rid, A.winsOf(r)]));
+  const max = Object.fromEntries(rows.map(r => [r.rid, cur[r.rid] + left[r.rid]]));
+  for (const r of rows) {
+    const surelyBelow = rows.filter(o => o.rid !== r.rid && max[o.rid] < cur[r.rid]).length;
+    const surelyAbove = rows.filter(o => o.rid !== r.rid && cur[o.rid] > max[r.rid]).length;
+    out[r.rid] = surelyBelow >= R ? 'safe' : surelyAbove >= rows.length - R ? 'relegated' : null;
   }
   return out;
 }
@@ -77,6 +98,8 @@ export function playoffOdds(ctx, { sims = 5000 } = {}) {
   const base = Object.fromEntries(st.map(r => [r.rid, { w: A.winsOf(r), pf: r.pf }]));
   const made = Object.fromEntries(ctx.rids.map(r => [r, 0]));
   const seedCount = Object.fromEntries(ctx.rids.map(r => [r, Array(K + 1).fill(0)]));
+  const R = relegationCount(ctx);
+  const dropped = Object.fromEntries(ctx.rids.map(r => [r, 0]));
   const ids = ctx.rids.slice();
   const done = remaining.length === 0;
   for (let s = 0; s < (done ? 1 : sims); s++) {
@@ -90,6 +113,7 @@ export function playoffOdds(ctx, { sims = 5000 } = {}) {
     }
     const order = ids.slice().sort((x, y) => w[y] - w[x] || pf[y] - pf[x]);
     order.slice(0, K).forEach((r, i) => { made[r]++; seedCount[r][i + 1]++; });
+    if (R) order.slice(-R).forEach(r => { dropped[r]++; });
   }
   const n = done ? 1 : sims;
   const out = {};
@@ -97,7 +121,7 @@ export function playoffOdds(ctx, { sims = 5000 } = {}) {
     const dist = seedCount[r].map(c => c / n);
     let likely = null, best = 0;
     for (let k = 1; k <= K; k++) if (dist[k] > best) { best = dist[k]; likely = k; }
-    out[r] = { pct: made[r] / n, seedDist: dist, likelySeed: likely, likelySeedPct: best, firstPct: dist[1] };
+    out[r] = { pct: made[r] / n, seedDist: dist, likelySeed: likely, likelySeedPct: best, firstPct: dist[1], relegPct: dropped[r] / n };
   }
   return { odds: out, sims: n, remaining: remaining.length };
 }

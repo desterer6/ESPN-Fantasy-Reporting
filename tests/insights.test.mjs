@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData } from '../scripts/espn.mjs';
 import * as A from '../site/js/analytics.js';
-import { playoffSize, remainingGames, currentSeeds, clinchStatus, playoffOdds, bracket, bracketOrder, regularSeasonDone } from '../site/js/playoffs.js';
+import { relegationCount, relegationStatus, playoffSize, remainingGames, currentSeeds, clinchStatus, playoffOdds, bracket, bracketOrder, regularSeasonDone } from '../site/js/playoffs.js';
 import { powerRankings, powerIndex, matchupToWatch, tickerItems, POWER_CATEGORIES, POWER_WEIGHTS } from '../site/js/insights.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
@@ -99,6 +99,18 @@ const dctx = A.prepare(done);
 const br2 = bracket(dctx, currentSeeds(dctx).rows);
 ok(br2.rounds[1].games[0].top.rid === 1 && br2.rounds[1].games[0].bottom.rid === 3, 'winners advance to the final in bracket order');
 ok(br2.rounds[1].games[0].pts[3] === 130 && br2.champion === 3, 'champion from ESPN result');
+
+// Relegation (league rule from config.json), off unless configured.
+ok(data.playoffs.relegation === 0 && relegationCount(ctx) === 0, 'no relegation unless configured');
+const rel = JSON.parse(JSON.stringify(data)); rel.playoffs.relegation = 1;
+const rctx = A.prepare(rel);
+ok(relegationCount(rctx) === 1, 'relegation count from config');
+const rod = playoffOdds(rctx, { sims: 2000 });
+close(Object.values(rod.odds).reduce((a, o) => a + o.relegPct, 0), 1, 'last-place odds add up to 1');
+const fakeR = { rids: [1, 2, 3, 4], data: { playoffs: { teams: 2, relegation: 1 }, league: { regularSeasonEnd: 10 }, weeks: [], upcoming: [{ week: 10, games: [[1, 2], [3, 4]] }] }, completed: [] };
+const rowsR = [[1, 8], [2, 6], [3, 5], [4, 3]].map(([rid, w]) => ({ rid, w, l: 9 - w, t: 0, pf: 0 }));
+const rs = relegationStatus(fakeR, rowsR);
+ok(rs[1] === 'safe' && rs[2] === 'safe' && rs[4] === 'relegated' && rs[3] === 'safe', 'relegation safe/relegated math');
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

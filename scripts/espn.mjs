@@ -98,7 +98,7 @@ const sidePoints = (side, decided) => round2(decided ? side.totalPoints : side.t
  * @param boxByPeriod  { [scoringPeriodId]: schedule[] } from the mBoxscore view for each scoring period fetched
  * @param leagueId  the configured league ID (string)
  */
-export function buildLeagueData({ league, boxByPeriod = {}, leagueId, now = new Date() }) {
+export function buildLeagueData({ league, boxByPeriod = {}, leagueId, relegation = 0, now = new Date() }) {
   const periods = regularPeriods(league);
   const lastRegular = periods.length;
   const current = league.status?.currentMatchupPeriod ?? 0;
@@ -176,6 +176,7 @@ export function buildLeagueData({ league, boxByPeriod = {}, leagueId, now = new 
     }),
   }));
   const playoffs = {
+    relegation, // league rule from config.json: bottom N teams are relegated
     teams: Number.isInteger(ss.playoffTeamCount) ? ss.playoffTeamCount : null,
     roundLength: Number.isInteger(ss.playoffMatchupPeriodLength) ? ss.playoffMatchupPeriodLength : 1,
     seedingRule: typeof ss.playoffSeedingRule === 'string' ? ss.playoffSeedingRule : null,
