@@ -361,3 +361,17 @@ svg.chart .grid-line { stroke: var(--line); stroke-width: 1; }
 :root[data-theme="light"] .ticker-item:hover span { text-decoration-color: var(--gold); }
 :root[data-theme="light"] nav.sub a.on { background: var(--text); color: #fff; }
 :root[data-theme="light"] .tile { background: var(--surface2); }
+
+/* ---- Heat grids on wider screens: use the room instead of phone-sized cells -------------- */
+@media (min-width: 760px) {
+  .grid { width: 100%; table-layout: fixed; border-spacing: 4px; }
+  .grid thead th:first-child { width: 190px; }
+  .grid th.rowh { max-width: 190px; font-size: 13px; padding-right: 10px; }
+  .grid th.colh { height: 128px; font-size: 12px; padding-bottom: 6px; }
+  .grid td { height: 38px; font-size: 13px; border-radius: 6px; letter-spacing: 0; }
+  .grid td.diag { outline-width: 3px; outline-offset: -3px; }
+  .grid.wide td { height: 38px; font-size: 13px; }
+}
+@media (min-width: 1100px) {
+  .grid th.colh div { font-size: 12.5px; }
+}
