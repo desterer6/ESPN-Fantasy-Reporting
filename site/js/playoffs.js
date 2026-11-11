@@ -172,9 +172,11 @@ export function bracket(ctx, seedRows) {
           g.live = !game.winner && game.teams.some(t => t.pts > 0);
         }
       }
+      // What feeds the next round until there's a winner: "1 v 8", or "Semifinal 1" deeper in.
+      const single = (ROUND_NAMES[nRounds - r] || `Round ${r + 1}`).replace(/s$/, '');
+      g.code = x?.rid != null && y?.rid != null && x.seed && y.seed ? `${x.seed}\u00a0v\u00a0${y.seed}` : `${single}\u00a0${i / 2 + 1}`;
       games.push(g);
-      const w = g.winner != null ? { rid: g.winner, seed: seedOf[g.winner] } : null;
-      next.push(w);
+      next.push(g.winner != null ? { rid: g.winner, seed: seedOf[g.winner] } : { rid: null, from: g.code });
     }
     rounds.push({ name: ROUND_NAMES[nRounds - r] || `Round ${r + 1}`, week: espn?.week ?? startWeek, nflWeeks: espn?.nflWeeks ?? Array.from({ length: len }, (_, k) => startWeek + k), games });
     slots = next;

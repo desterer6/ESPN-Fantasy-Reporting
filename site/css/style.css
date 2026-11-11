@@ -512,3 +512,15 @@ table tr.releg td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
 .rtag { display: inline-block; margin-left: 6px; font: 700 9.5px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--warn); border: 1px solid currentColor; border-radius: 3px; padding: 2px 4px; vertical-align: 1px; opacity: .85; }
 .releg-note { font-size: 12.5px; color: var(--muted); margin: 10px 0 0; padding: 8px 10px; border-left: 3px solid var(--warn); background: color-mix(in srgb, var(--warn) 6%, transparent); border-radius: 0 4px 4px 0; }
 .releg-note b { color: var(--warn); font-weight: 700; }
+
+/* Bracket on phones: rounds side by side in pairs, names wrap instead of truncating */
+@media (max-width: 759px) {
+  .bracket { gap: 16px; }
+  .bk-games { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .bk-round:last-child .bk-games { grid-template-columns: minmax(0, 1fr); max-width: 70%; margin: 0 auto; }
+  .bk-head { margin-bottom: 6px; padding-bottom: 4px; }
+  .bk-team { grid-template-columns: 14px minmax(0, 1fr) auto; gap: 6px; padding: 6px 8px; font-size: 12.5px; min-height: 40px; }
+  .bk-team .nm { white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
+  .bk-team .sd { font-size: 12px; }
+  .bk-team.tbd .nm { font-size: 11.5px; }
+}

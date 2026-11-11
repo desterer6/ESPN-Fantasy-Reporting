@@ -33,7 +33,7 @@ function bracketCard(ctx, br, done, started) {
   const team = (slot, g) => {
     if (!slot) return h('div', { class: 'bk-team tbd' }, h('span', { class: 'sd' }, ''), h('span', { class: 'nm' }, 'TBD'), h('span', { class: 'pt' }, ''));
     if (slot.bye) return h('div', { class: 'bk-team tbd' }, h('span', { class: 'sd' }, ''), h('span', { class: 'nm' }, 'Bye'), h('span', { class: 'pt' }, ''));
-    if (slot.rid == null) return h('div', { class: 'bk-team tbd' }, h('span', { class: 'sd' }, slot.seed), h('span', { class: 'nm' }, 'TBD'), h('span', { class: 'pt' }, ''));
+    if (slot.rid == null) return h('div', { class: 'bk-team tbd' }, h('span', { class: 'sd' }, slot.seed ?? ''), h('span', { class: 'nm' }, slot.from ? `Winner of ${slot.from}` : 'TBD'), h('span', { class: 'pt' }, ''));
     const lost = g.winner != null && g.winner !== slot.rid;
     const pts = g.pts[slot.rid];
     return h('div', { class: 'bk-team' + (g.winner === slot.rid ? ' won' : '') + (lost ? ' lost' : '') + (slot.rid === ctx.meRid ? ' me' : '') },
