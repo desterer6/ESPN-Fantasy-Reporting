@@ -41,6 +41,16 @@ reproduces the published Week 9 order exactly, 1 through 12. Totals land within 
 because projections move during the week (Gage 55.74 vs. 55.79 published), and Silas matches
 exactly at 12.94.
 
+Weeks 7 and 8 don't reproduce as cleanly (FF Week 8 matches the top 4 but shuffles 5-11). The data
+file only keeps each week's latest projections, not the pre-game numbers used at the time, and
+those published rankings were built from screenshots. Week 9 is the clean baseline going forward.
+
+## Movement markers
+
+Movement always compares to the last published ranking, kept in `baselines/`. One published mistake
+to avoid repeating: Yellowstone Week 9 showed Joshing Around as (+1) even though it was #3 both weeks.
+The script computes the marker from the baseline, so use its value.
+
 ## Known limitations
 
 - Min-max lets one extreme week stretch the scale for everyone.

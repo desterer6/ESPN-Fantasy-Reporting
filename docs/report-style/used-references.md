@@ -32,6 +32,9 @@ Logged from the final published recaps (what David posted, not the drafts).
 | 8 | Gage / CGreer | "Calling HR... oh wait, this was HR"; human rights violation against the sport; both teams combined scored less than Tucker |
 | 8 | Tucker | Declared war on the league; reelection campaign announced during the midterms; nuclear codes missing |
 | 8 | Parker | Briefly convinced the public he was making a comeback |
+| 7 | Tiers | Federal Reserve of Fantasy Football; Department of Controlled Demolition; Stock Market Manipulation Committee; Economic Stimulus Recipients; Generational Poverty Franchise |
+| 8 | Tiers | National Nuclear Launch Authority; Federal Insider Trading Desk; Penny Stocks Under SEC Investigation; Veterinarian's Emergency Waiting Room; Federal Foreclosure Auction |
+| 9 | Matchup to watch (Tucker vs. Ben) | Reelection campaign heading into Bentonville; 0.78-point assassination attempt; election-night photo finish; nuclear codes still missing, polls closing |
 | 9 | Opening | League operating without adult supervision; offense of a public middle school; unlimited defense budget; desperation experiment |
 | 9 | David (Dawg Check) | Moved to the endangered species list; CGreer installed a software update; workers' comp; animal shelter jurisdiction |
 | 9 | Silas | Ladd News Network removed from cable providers; electricity turned off |
@@ -56,6 +59,9 @@ Logged from the final published recaps (what David posted, not the drafts).
 | 8 | Clonch / Andrew | FREE CLONCH chant; United Nations humanitarian crisis; Dictator Gregg conspiracy; held hostage by his own schedule; JUSTICE FOR CLONCH |
 | 8 | Sam / Jay | Sam's streak a concern for Dictator Gregg; Jæ's favorite folding chair; troops outside the Capitol; civil war approaching |
 | 8 | Ben (FELONS) / Garrett | Felons escaped federal custody; Garrett in the deepest corner of the basement |
+| 7 | Tiers | The Untouchables (Presidential Immunity); Manhattan Project; Fantasy Football Hedge Fund; 2008 Housing Market Collapse; Federal Bankruptcy Program; Toilet Bowl Industrial Complex |
+| 8 | Tiers | The Dictator vs. the Revolution; $500,000 Dead or Alive Bounties; Saloon Parking Lot Shootout; Oregon Trail Dysentery Victims; Make-A-Wish Foundation's Waiting List |
+| 9 | Matchup to watch (David vs. Folger) | TE factory full-scale domestic invasion; Folger's 186-point war crime; 148-point OSHA violation; primetime bloodbath; surprise OSHA inspection |
 | 9 | Opening | League thrown into a blender (except Lathan); Manny's 150+ point sledgehammer; Clonch's season a CIA study; 5-4 traffic jam |
 | 9 | David / Folger | TE factory under new management; the factory went on strike; clinging to the last playoff spot fending off the RATS |
 | 9 | Wingfield / Lathan | Opposite directions; COMMISH VS PAST COMMISH; reverse engineered; "we saw this coming like the AI bubble"; someone must overthrow this dictator |
@@ -74,4 +80,10 @@ Logged from the final published recaps (what David posted, not the drafts).
 - Political/election framing: it's the core premise for Tucker and Lathan/Sam, so keep the premise
   but find new angles (debates, polls, recounts, impeachment, term limits, inauguration).
 - Unemployment/workforce jokes: Silas Week 9, the Felons in Week 9, and Beazness in Week 9 rankings.
-- Bank/financial collapse imagery is used across several Week 9 tiers.
+- Finance/economy tier names: used in FF Weeks 7, 8 and 9 (Federal Reserve, insider trading, penny
+  stocks, foreclosure, insurance fraud) and Yellowstone Weeks 7 and 9 (hedge fund, 2008 housing,
+  bankruptcy, Fortune 500 twice). Use a different theme family for the next tiers.
+- Nuclear/war imagery for Tucker shows up almost every week (warhead, launch authority, nuclear codes).
+  Keep the president premise, but give the nukes a rest.
+- OSHA/factory jokes for David's TE SZN: Weeks 8 and 9, plus the Week 9 matchup to watch.
+- Yellowstone tiers 2 weeks running: "Dictator vs. Revolution" headed the top tier in Weeks 8 and 9.

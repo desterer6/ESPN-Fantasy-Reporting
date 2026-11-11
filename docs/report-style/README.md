@@ -11,6 +11,8 @@ survives between sessions. Read these files before writing anything.
 | [matchup-to-watch.md](matchup-to-watch.md) | How the spotlight matchup is picked |
 | [used-references.md](used-references.md) | Every published bit and tier name, plus the freshness rules |
 | [examples/](examples/) | David's published reports, the gold standard for tone |
+| [archive/](archive/) | David's recovered final power rankings (Weeks 7-9) and matchups to watch (Weeks 8-10), verbatim |
+| [baselines/](baselines/) | Last published rank per team, the `--prev` file for movement markers |
 
 ## The two leagues are separate
 
@@ -35,13 +37,14 @@ Both sites refresh final scores Tuesday around 4 AM Central. Pull the latest dat
    from this output. Bench points aren't in the data, so confirm benched blow-ups in the app.
 2. **Recap.** One section per matchup, written in the voice in [voice.md](voice.md). Check
    [used-references.md](used-references.md) first so nothing is recycled, and find one current hook from that week.
-3. **Power rankings.** `node scripts/power-rankings.mjs <league.json> <week> --proj proj.json --prev prev.json`.
+3. **Power rankings.** `node scripts/power-rankings.mjs <league.json> <week> --prev baselines/<league>-week<NN-1>.json`
+   (Yellowstone also needs `--proj`).
    Use the computed order and tiers, write fresh tier names, add the movement markers and the
    "intelligence report" paragraph.
 4. **Matchup to watch.** Pick next week's spotlight with [matchup-to-watch.md](matchup-to-watch.md).
 5. **Validate** with the checklist below, then hand David a copy-and-paste block per league.
 6. **Archive.** Save David's final edited version to `examples/`, log its bits in `used-references.md`, and the scorecard JSON
-   (`--json`) as next week's `--prev` baseline. His edit, not the draft, is the reference.
+   as next week's baseline in `baselines/<league>-week<NN>.json` (team name to published rank). His edit, not the draft, is the reference.
 
 ## Validation checklist
 
