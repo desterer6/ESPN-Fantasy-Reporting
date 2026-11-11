@@ -1,5 +1,5 @@
 // Tests for weekly reports, news and the safe Markdown renderer. No network: node tests/content.test.mjs
-import { buildContent, parseCsv, parseIssueForm, clean, LIMITS, reportsFromArchive } from '../scripts/content.mjs';
+import { buildContent, parseCsv, parseIssueForm, clean, LIMITS, reportsFromArchive, newsFromFiles } from '../scripts/content.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -58,6 +58,15 @@ const files = fs.existsSync(repoArchive) ? fs.readdirSync(repoArchive).filter(n 
 const real = reportsFromArchive(files.map(name => ({ name, text: fs.readFileSync(path.join(repoArchive, name), 'utf8') })));
 ok(real.length === files.length && real.every(r => r.week && r.season && r.date && r.body.length < LIMITS.report), 'every committed archive report parses and fits');
 ok(renderMarkdown('### Tier\n\n4. A\n5. B').includes('<ol start="4">'), 'numbered lists keep their starting number');
+
+// Owner news posts (news/*.md) join approved submissions, newest first.
+const posts = newsFromFiles([{ name: 'p.md', text: 'headline: Deadline <b>soon</b>\nbyline: The Commissioner\ndate: 2100-01-01T00:00:00Z\n---\nLine one\n\nQuote' }]);
+ok(posts.length === 1 && posts[0].id === 'c-p' && posts[0].story === 'Line one\n\nQuote', 'owner news post parsed');
+const withPost = buildContent({ csv: fx.csv, posts: [{ name: 'p.md', text: 'headline: X\ndate: 2100-01-01T00:00:00Z\n---\ny' }] });
+ok(withPost.news[0].id === 'c-p' && withPost.news.length === c.news.length + 1, 'owner post merged with submissions, newest first');
+const newsDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'news');
+const nfiles = fs.existsSync(newsDir) ? fs.readdirSync(newsDir).filter(n => n.endsWith('.md')) : [];
+ok(newsFromFiles(nfiles.map(name => ({ name, text: fs.readFileSync(path.join(newsDir, name), 'utf8') }))).length === nfiles.length, 'every committed news post parses');
 
 // Deploy cache-busting
 ok(stampHtml('<link href="css/style.css"><script src="js/app.js"></script><a href="#/x">', 'abc') === '<link href="css/style.css?v=abc"><script src="js/app.js?v=abc"></script><a href="#/x">', 'stamp html assets only');

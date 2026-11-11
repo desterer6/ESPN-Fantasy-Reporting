@@ -86,6 +86,12 @@ Your earlier reports live in `reports/archive/`, one Markdown file per week, wor
 file starts with `week`, `season`, `title` and `date` lines, then `---`, then the report. Add a file to
 publish another past week. They appear on the Weekly Report page next to the ones you post as issues.
 
+## Posting news yourself
+
+Add a file to `news/` (for example `news/2026-11-11-trade-deadline.md`) with `headline`, `byline` and
+`date` lines, then `---`, then the story. It shows on the News page and the scrolling banner within a
+couple of minutes. Delete the file to take it down.
+
 ## Undoing a change
 
 - **Hide the archived reports:** set `"showArchivedReports": false` in `config.json` (edit it on GitHub). The site updates in a couple of minutes. Set it back to `true` to show them again.

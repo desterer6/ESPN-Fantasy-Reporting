@@ -56,30 +56,54 @@ export function reportsFromIssues(issues, { owner } = {}) {
 // Archived reports committed to the repo (reports/archive/*.md): the owner's own past reports, kept
 // word for word. Each file starts with "key: value" lines (week, season, title, date), then a line
 // with "---", then the Markdown body. Only the repo owner can commit, so these are trusted like owner issues.
+function frontMatter(text) {
+  const src = String(text || '').replace(/\r\n?/g, '\n');
+  const cut = src.indexOf('\n---\n');
+  if (cut < 0) return null;
+  const meta = {};
+  for (const line of src.slice(0, cut).split('\n')) {
+    const m = line.match(/^(\w+):\s*(.*)$/);
+    if (m) meta[m[1].toLowerCase()] = m[2].trim();
+  }
+  return { meta, body: src.slice(cut + 5) };
+}
+const slugOf = name => String(name || '').replace(/\.md$/i, '').replace(/[^a-z0-9-]/gi, '').toLowerCase();
+
 export function reportsFromArchive(files = []) {
   return files.map(({ name, text }) => {
-    const src = String(text || '').replace(/\r\n?/g, '\n');
-    const cut = src.indexOf('\n---\n');
-    if (cut < 0) return null;
-    const meta = {};
-    for (const line of src.slice(0, cut).split('\n')) {
-      const m = line.match(/^(\w+):\s*(.*)$/);
-      if (m) meta[m[1].toLowerCase()] = m[2].trim();
-    }
+    const fm = frontMatter(text);
+    if (!fm) return null;
+    const { meta } = fm;
     const week = parseInt(meta.week, 10);
     const season = parseInt(meta.season, 10);
     const date = new Date(meta.date);
-    const slug = String(name || '').replace(/\.md$/i, '').replace(/[^a-z0-9-]/gi, '').toLowerCase();
     return {
-      id: `a-${slug}`,
+      id: `a-${slugOf(name)}`,
       week: Number.isFinite(week) ? week : null,
       season: Number.isFinite(season) ? String(season) : null,
       title: clean(meta.title, LIMITS.title),
-      body: clean(src.slice(cut + 5), LIMITS.report),
+      body: clean(fm.body, LIMITS.report),
       date: isNaN(date) ? null : date.toISOString(),
       archived: true,
     };
   }).filter(r => r && r.title && r.body);
+}
+
+// League news the owner posts directly (news/*.md in the repo): headline, byline and date lines,
+// then "---", then the story as plain text. Shown alongside approved reader submissions.
+export function newsFromFiles(files = []) {
+  return files.map(({ name, text }) => {
+    const fm = frontMatter(text);
+    if (!fm) return null;
+    const date = new Date(fm.meta.date);
+    return {
+      id: `c-${slugOf(name)}`,
+      headline: clean(fm.meta.headline, LIMITS.headline),
+      story: clean(fm.body, LIMITS.story),
+      byline: clean(fm.meta.byline, LIMITS.byline),
+      date: isNaN(date) ? null : date.toISOString(),
+    };
+  }).filter(n => n && n.headline);
 }
 
 // Minimal RFC 4180 CSV parser (quoted fields, escaped quotes, newlines inside quotes).
@@ -128,8 +152,8 @@ export function newsFromCsv(text) {
     .filter(n => n.headline);
 }
 
-export function buildContent({ issues = [], csv = '', owner, newsFormUrl = '', archive = [], now = new Date() }) {
-  const news = newsFromCsv(csv)
+export function buildContent({ issues = [], csv = '', owner, newsFormUrl = '', archive = [], posts = [], now = new Date() }) {
+  const news = [...newsFromFiles(posts), ...newsFromCsv(csv)]
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
     .slice(0, 100);
   return {

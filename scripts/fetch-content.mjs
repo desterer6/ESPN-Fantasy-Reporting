@@ -51,12 +51,21 @@ async function archiveFiles() {
 }
 const archive = await archiveFiles();
 
+// News the owner posts directly (news/*.md).
+async function postFiles() {
+  const dir = path.join(root, 'news');
+  let names = [];
+  try { names = (await fs.readdir(dir)).filter(n => n.endsWith('.md')).sort(); } catch { return []; }
+  return Promise.all(names.map(async name => ({ name, text: await fs.readFile(path.join(dir, name), 'utf8') })));
+}
+const posts = await postFiles();
+
 let prev = null;
 try { prev = JSON.parse(await fs.readFile(dest, 'utf8')); } catch { /* first run */ }
 
 try {
   const [issues, csv] = await Promise.all([issuesWith('weekly-report'), sheetCsv(cfg.newsSheetCsvUrl)]);
-  const out = buildContent({ issues, csv, owner: repo.split('/')[0], newsFormUrl: cfg.newsFormUrl || '', archive });
+  const out = buildContent({ issues, csv, owner: repo.split('/')[0], newsFormUrl: cfg.newsFormUrl || '', archive, posts });
 
   const strip = o => JSON.stringify({ ...o, generatedAt: null });
   if (prev && strip(prev) === strip(out)) {
@@ -71,7 +80,7 @@ try {
   console.error(`Content not refreshed: ${e.message}`);
   if (!prev) {
     await fs.mkdir(path.dirname(dest), { recursive: true });
-    await fs.writeFile(dest, JSON.stringify(buildContent({ newsFormUrl: cfg.newsFormUrl || '', archive })));
+    await fs.writeFile(dest, JSON.stringify(buildContent({ newsFormUrl: cfg.newsFormUrl || '', archive, posts })));
   }
   process.exitCode = 0;
 }
