@@ -30,7 +30,7 @@ jobs:
       contents: write   # push the undo commit
       actions: write    # start the deploy workflow afterwards
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Check the input
