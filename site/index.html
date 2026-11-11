@@ -6,10 +6,16 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0b111a">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
   <title>League Report</title>
   <meta name="description" content="Scores, standings, weekly reports and league news.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l12 4v9c0 8-5.5 13-12 15C9.5 28 4 23 4 15V6z' fill='%23d7263d'/%3E%3Cpath d='M16 6l8 2.7V15c0 5.6-3.6 9.2-8 10.8C11.6 24.2 8 20.6 8 15V8.7z' fill='%230b111a'/%3E%3Ctext x='16' y='20' text-anchor='middle' font-family='Arial Narrow,Arial' font-weight='700' font-size='10' fill='%23f2b705'%3EFF%3C/text%3E%3C/svg%3E">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
   <link rel="preload" href="fonts/barlow-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -46,6 +52,14 @@
   <div class="scorestrip" id="scorestrip" hidden><div class="wrap" id="scorestrip-inner"></div></div>
   <main class="wrap" id="app" tabindex="-1"><div class="loading">Loading league data…</div></main>
   <footer class="site-foot"><div class="wrap"><span id="foot-left">Unofficial fan site. Data from ESPN Fantasy, refreshed automatically.</span><span>Team names and scores only. No personal data is collected.</span></div></footer>
+  <nav class="bottomnav" aria-label="Sections">
+    <a href="#/" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
+    <a href="#/scores" data-tab="scores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4zM4 12h16M12 5v14"/></svg><span>Scores</span></a>
+    <a href="#/standings" data-tab="standings"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg><span>Standings</span></a>
+    <a href="#/reports" data-tab="reports"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM9 10h7M9 14h7M9 18h4"/></svg><span>Report</span></a>
+    <a href="#/news" data-tab="news"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l6 4V6L7 10zM17 9a4 4 0 0 1 0 6"/></svg><span>News</span></a>
+    <a href="#/stats" data-tab="stats"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 16l4-5 3 3 5-7"/></svg><span>Stats</span></a>
+  </nav>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

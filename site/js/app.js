@@ -45,7 +45,7 @@ function route(keepScroll = false) {
   const y = window.scrollY;
   const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').filter(Boolean).map(decodeURIComponent);
   const page = parts[0] || 'home';
-  document.querySelectorAll('#tabs a').forEach(a => {
+  document.querySelectorAll('[data-tab]').forEach(a => {
     const on = a.dataset.tab === page;
     a.classList.toggle('on', on);
     on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
@@ -139,3 +139,8 @@ async function main() {
   }
 }
 main();
+
+// Offline support: cache the site so it opens instantly and works with no signal (data refreshes when online).
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
