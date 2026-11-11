@@ -81,6 +81,10 @@ jobs:
             git push
           fi
 
+      - name: Cache-bust CSS and JS for this deploy
+        if: ${{ vars.DEPLOY_PAGES != 'false' }}
+        run: node scripts/stamp.mjs "${GITHUB_SHA::7}"
+
       - uses: actions/configure-pages@v5
         if: ${{ vars.DEPLOY_PAGES != 'false' }}
 

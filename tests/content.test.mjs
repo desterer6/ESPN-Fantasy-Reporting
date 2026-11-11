@@ -2,6 +2,7 @@
 import { buildContent, parseCsv, parseIssueForm, clean, LIMITS } from '../scripts/content.mjs';
 import { renderMarkdown, excerpt } from '../site/js/markdown.js';
 import * as fx from './fixtures/content-fixture.mjs';
+import { stampHtml, stampJs } from '../scripts/stamp.mjs';
 
 let failed = 0, passed = 0;
 const ok = (cond, msg) => { cond ? passed++ : (failed++, console.error('FAIL:', msg)); };
@@ -41,6 +42,10 @@ ok(!html.includes('<script>') && html.includes('&lt;script&gt;'), 'script tag es
 ok(!renderMarkdown('[x](javascript:alert(1))').includes('href'), 'javascript: links not linked');
 ok(!renderMarkdown('<img src=x onerror=alert(1)>').includes('<img'), 'raw HTML escaped');
 ok(excerpt('## Head\n\n**Bold** text [link](https://a.b)', 50) === 'Bold text link', 'excerpt strips markup');
+
+// Deploy cache-busting
+ok(stampHtml('<link href="css/style.css"><script src="js/app.js"></script><a href="#/x">', 'abc') === '<link href="css/style.css?v=abc"><script src="js/app.js?v=abc"></script><a href="#/x">', 'stamp html assets only');
+ok(stampJs("import * as A from './analytics.js';\nimport { h } from '../ui.js';\nconst u = 'data/league.json';", 'abc') === "import * as A from './analytics.js?v=abc';\nimport { h } from '../ui.js?v=abc';\nconst u = 'data/league.json';", 'stamp module imports only');
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
