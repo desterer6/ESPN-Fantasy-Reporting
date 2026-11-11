@@ -25,6 +25,9 @@ team name changes (Gage: "Im in RA" became "Im No Longer in RA").
 
 ## Weekly workflow (Tuesday, after Monday Night Football)
 
+David has written every 2026 report through Week 9. Don't write reports for past weeks. Start
+with Week 10, and only once David says the week is complete.
+
 Both sites refresh final scores Tuesday around 4 AM Central. Pull the latest data first.
 
 1. **Facts.** `node scripts/week-facts.mjs site/data/league.json <week>` (and the same against the
