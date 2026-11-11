@@ -24,6 +24,13 @@ Logged from the final published recaps (what David posted, not the drafts).
 
 | Week | Team / manager | Bit used |
 |---|---|---|
+| 6 | Opening | Monarchy collapsed; fantasy football government lost control |
+| 6 | David (King Deshaun CeeDees Nuts) | Under federal investigation; the real crime at QB (Watson 9.46, Shough 26.96 on the bench) |
+| 6 | Parker / Silas | Released from fantasy football prison; rebranded Ladd News Bears immediately served the worst news; "only time will tell" clocks |
+| 6 | CGreer / Graham | Projected 136.3, scored 83.66: an economic recession |
+| 6 | Tucker / Carson | The coup is complete; whole roster showed up for work; Tucker administration sworn into office |
+| 6 | Ryan / Ben | Greatest bank robbery of the season, won by 0.82 ("much like his little…"); grand larceny in broad daylight; check the Wizard's bank accounts |
+| 6 | Gage / Repp | The king is dead, long live the king; Jameis at QB; royal palace stormed; Tucker measuring the throne for an office chair |
 | 7 | Opening | Tucker's administration lasted one week; everyone preparing a title run or contacting their attorney |
 | 7 | David (Dawg Check) | Football gods won't recognize the new name; failed third straight vibe check; vet recommends immediate treatment |
 | 7 | Silas / Graham | Graham back from the dead (🧟); "LADD TO WORSE (get it?)"; Silas researching the 2027 NFL Draft |
@@ -85,6 +92,8 @@ Logged from the final published recaps (what David posted, not the drafts).
 
 - Geneva Convention: FF Week 7, Yellowstone Week 8 and FF Week 10 matchup to watch (three times in four weeks).
 - Vet/dying-dog and vibe-check jokes for Dawg Check: Weeks 7, 8 and 9. Rest them.
+- Coup/throne/monarchy/Oval Office for Tucker and Gage: Weeks 6, 7, 8 and 9 in a row. The story is real, so find a new frame (sports dynasty, reality TV, sitcom, heist movie).
+- Crime/federal investigation framing: David Week 6, robbery Week 6, federal crime scene Week 8, investigated for the lottery Week 9.
 - Wizard/Harry Potter for Ryan: Week 7 (expelled from Hogwarts) and Week 8 (back from Azkaban).
 - Political/election framing: it's the core premise for Tucker and Lathan/Sam, so keep the premise
   but find new angles (debates, polls, recounts, impeachment, term limits, inauguration).

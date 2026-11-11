@@ -25,6 +25,10 @@ first draft so it already looks like the final:
   correct them in the archive. Deliberate wordplay is welcome in new drafts.
 - **Signature phrases recur on purpose:** GOOSE EGG 🥚🥚, BROTHER, "SOMEHOW", "OFFICIALLY",
   🚬🚬. These are the brand. The freshness rule applies to comparisons and premises, not these.
+- Early-season sections sometimes close on a question to the group ("Is this the start of a generational
+  run?! Only time will tell…", "WHAT WILL HE DO WITH THIS NEW FOUND POWER") and some lead in normal case.
+- Projection busts are a favorite angle ("PROJECTED FOR 136.3 AND FINISHED WITH 83.66"), and so is bench
+  points left behind. ESPN projections are in the data, so check them every week.
 - Not every section ends with a big all-caps closer. Some end flat ("I'm upset just looking at this
   matchup result"), which keeps the rhythm from feeling like a template.
 
