@@ -102,7 +102,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   espn-health:
     # Turns a failed ESPN fetch into a failed run (GitHub emails the owner) after the site is deployed.
