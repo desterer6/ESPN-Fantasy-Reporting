@@ -49,6 +49,9 @@ jobs:
       - name: Test reports, news and Markdown (offline fixture)
         run: node tests/content.test.mjs
 
+      - name: Test power rankings (offline fixture)
+        run: node tests/insights.test.mjs
+
       - name: Collect weekly reports and approved news
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -80,6 +83,10 @@ jobs:
             git commit -m "Update league data and content"
             git push
           fi
+
+      - name: Cache-bust CSS and JS for this deploy
+        if: ${{ vars.DEPLOY_PAGES != 'false' }}
+        run: node scripts/stamp.mjs "${GITHUB_SHA::7}"
 
       - uses: actions/configure-pages@v5
         if: ${{ vars.DEPLOY_PAGES != 'false' }}

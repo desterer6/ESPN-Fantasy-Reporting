@@ -6,6 +6,7 @@ import { renderScores, scoreStrip } from './pages/scores.js';
 import { renderStandings } from './pages/standings.js';
 import { renderReports } from './pages/reports.js';
 import { renderNews } from './pages/news.js';
+import { renderPower } from './pages/power.js';
 import { renderHistory } from './pages/history.js';
 import { renderSchedule } from './pages/schedule.js';
 import { renderRoster } from './pages/roster.js';
@@ -46,7 +47,7 @@ function route(keepScroll = false) {
   const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').filter(Boolean).map(decodeURIComponent);
   const page = parts[0] || 'home';
   document.querySelectorAll('[data-tab]').forEach(a => {
-    const on = a.dataset.tab === page;
+    const on = a.dataset.tab === (page === 'power' ? 'standings' : page);
     a.classList.toggle('on', on);
     on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
   });
@@ -54,6 +55,7 @@ function route(keepScroll = false) {
   try {
     if (page === 'scores') view = renderScores(ctx, state, () => route(true));
     else if (page === 'standings') view = renderStandings(ctx);
+    else if (page === 'power') view = renderPower(ctx, state, () => route(true));
     else if (page === 'reports') view = renderReports(ctx, content, parts[1]);
     else if (page === 'news') view = renderNews(content, parts[1]);
     else if (page === 'stats') view = statsPage(['schedule', 'roster'].includes(parts[1]) ? parts[1] : 'history');
@@ -63,7 +65,25 @@ function route(keepScroll = false) {
     view = h('div', { class: 'err' }, 'Something went wrong drawing this page: ' + e.message);
   }
   app.replaceChildren(view);
+  document.body.dataset.page = page;
+  markScrollables();
   if (keepScroll) window.scrollTo(0, y); else window.scrollTo(0, 0);
+}
+
+// Wide tables scroll sideways on small screens: fade the edge and show a hint until the end is reached.
+function markScrollables() {
+  for (const w of app.querySelectorAll('.tablewrap')) {
+    const update = () => {
+      const scrolls = w.scrollWidth > w.clientWidth + 4;
+      w.classList.toggle('scrolls', scrolls);
+      w.classList.toggle('at-end', w.scrollLeft + w.clientWidth >= w.scrollWidth - 4);
+      let hint = w.previousElementSibling;
+      if (!hint || !hint.classList.contains('swipe-hint')) { hint = h('div', { class: 'swipe-hint', 'aria-hidden': 'true' }, 'Swipe for more →'); w.before(hint); }
+      hint.classList.toggle('show', scrolls && !w.classList.contains('at-end'));
+    };
+    if (!w.dataset.watched) { w.dataset.watched = '1'; w.addEventListener('scroll', update, { passive: true }); new ResizeObserver(update).observe(w); }
+    update();
+  }
 }
 
 // "My team" highlight: chosen per viewer and remembered on this device only.
@@ -127,11 +147,13 @@ async function main() {
     if (initials) document.getElementById('logo-text').textContent = initials;
     document.title = `${data.league.name} | League Report`;
     const when = new Date(data.generatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-    document.getElementById('updated').textContent = `${data.league.season} season · Week ${data.league.currentWeek}`;
+    document.getElementById('updated').textContent = `${data.league.season} · Week ${data.league.currentWeek}`;
     document.getElementById('updated').title = `Updated ${when}`;
     document.getElementById('foot-left').textContent = `Unofficial fan site. Data from ESPN Fantasy, updated ${when}.`;
     drawChrome();
     window.addEventListener('hashchange', () => route());
+    // Charts read theme colors when drawn, so redraw on a theme switch.
+    document.addEventListener('themechange', () => { drawChrome(); route(true); });
     route();
   } catch (e) {
     console.error(e);

@@ -71,7 +71,7 @@ function standingsCard(ctx) {
   const sk = streaks(ctx);
   return h('section', { class: 'card' },
     h('h2', {}, 'Standings'),
-    h('table', { class: 'compact' },
+    h('table', { class: 'compact standings' },
       h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'Team'), h('th', { class: 'c' }, 'W-L'), h('th', { class: 'r' }, 'PF'), h('th', { class: 'c' }, 'Strk'))),
       h('tbody', {}, st.map(r => h('tr', { class: r.rid === ctx.meRid ? 'mine' : '' },
         h('td', { class: 'rk' }, r.rank),
@@ -87,12 +87,15 @@ function powerCard(ctx) {
   const pi = powerIndex(ctx);
   const mv = m => (m > 0 ? h('span', { class: 'mv up' }, `▲${m}`) : m < 0 ? h('span', { class: 'mv down' }, `▼${-m}`) : h('span', { class: 'mv flat' }, '–'));
   return h('section', { class: 'card' },
-    h('h2', {}, 'Power index'),
-    h('p', { class: 'sub' }, 'Ranked by all-play record: every team against every team, every week. Arrows show the move since last week.'),
-    h('table', { class: 'compact' },
+    h('h2', {}, 'Power rankings'),
+    h('p', { class: 'sub' }, 'Scored out of 100: record 40, points 25, recent form 15, roster 10, points against 5, lineups 5.'),
+    h('table', { class: 'compact power' },
+      h('thead', {}, h('tr', {}, h('th', {}, '#'), h('th', {}, 'Team'), h('th', { class: 'c' }, 'W-L'), h('th', { class: 'r' }, 'Score'), h('th', { class: 'r' }, ''))),
       h('tbody', {}, pi.map(r => h('tr', { class: r.rid === ctx.meRid ? 'mine' : '' },
         h('td', { class: 'rk' }, r.rank),
         h('td', { class: 'nm' + (r.rid === ctx.meRid ? ' me' : '') }, ctx.name(r.rid)),
         h('td', { class: 'c' }, A.fmtRec(r.rec)),
-        h('td', { class: 'r' }, mv(r.move)))))));
+        h('td', { class: 'r' }, h('b', {}, f1(r.score))),
+        h('td', { class: 'r' }, mv(r.move)))))),
+    h('a', { class: 'more', href: '#/power' }, 'See how each team scores →'));
 }

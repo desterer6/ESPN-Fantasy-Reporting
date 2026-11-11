@@ -25,6 +25,8 @@ ok(data.weeks[3].matchups.every(m => m.teams.every(t => t.pts > 0)), 'live week 
 const starters = data.weeks[0].matchups[0].teams[0].starters;
 ok(starters.length === 9, `nine starters (bench excluded), got ${starters.length}`);
 ok(starters.every(s => s.pts !== 99), 'uses actual (statSourceId 0) points, not projections');
+ok(data.weeks[0].matchups[0].teams[0].proj === 9 * 99, 'lineup projection = sum of starters\' projected points');
+ok(starters.every(s => !('proj' in s)), 'per-player projections are not stored');
 const pl = data.players[starters[0].id];
 ok(pl && pl.p === 'QB' && pl.t, 'player lookup has position and NFL team');
 ok(Object.values(data.players).some(p => p.p === 'DEF'), 'D/ST mapped to DEF');

@@ -1,5 +1,5 @@
 import * as A from '../analytics.js';
-import { h, svg, f1, pct, attachTip, esc, diverge, POS_COLORS, POS_INK, SERIES, section, sortableTable } from '../ui.js';
+import { h, svg, f1, pct, attachTip, esc, diverge, POS_COLORS, POS_INK, SERIES, meColor, cssVar, section, sortableTable } from '../ui.js';
 import { label, labelHtml, weeksFor, weeksLabel } from './common.js';
 
 export function renderRoster(ctx, st) {
@@ -13,7 +13,7 @@ export function renderRoster(ctx, st) {
 // ---- 1. Top-heavy share --------------------------------------------------------------------------------
 const GROUPS = [
   { name: 'Top scorer', bg: '#9ec5f4', fg: '#0b2a4d' }, { name: '#2–3 scorers', bg: '#5598e7', fg: '#071a33' },
-  { name: '#4–5 scorers', bg: '#256abf', fg: '#ffffff' }, { name: 'Everyone else', bg: '#2b3a4f', fg: '#9fb0c3' },
+  { name: '#4–5 scorers', bg: '#256abf', fg: '#ffffff' }, { name: 'Everyone else', bg: 'var(--track-rest)', fg: 'var(--track-rest-fg)' },
 ];
 function topHeavy(ctx, weeks) {
   const conc = A.concentration(ctx, weeks);
@@ -45,7 +45,7 @@ function curves(ctx, weeks) {
   const W = 428, H = 230, L = 34, R = 10, T = 10, B = 24, XM = 15;
   const X = r => L + ((r - 1) / (XM - 1)) * (W - L - R), Y = p => T + (1 - p) * (H - T - B);
   const colorOf = rid => {
-    if (rid === ctx.meRid && sel.has(rid)) return SERIES[0];
+    if (rid === ctx.meRid && sel.has(rid)) return meColor();
     const others = [...sel].filter(r => r !== ctx.meRid); const i = others.indexOf(rid);
     return i >= 0 ? SERIES[1 + (i % 5)] : null;
   };
@@ -58,7 +58,7 @@ function curves(ctx, weeks) {
     const order = ctx.rids.slice().sort((a, b) => (colorOf(a) ? 1 : 0) - (colorOf(b) ? 1 : 0));
     for (const rid of order) {
       const col = colorOf(rid), on = !!col; const cv = conc[rid].curve.slice(0, XM);
-      s.append(svg('polyline', { points: cv.map((p, i) => `${X(i + 1)},${Y(p)}`).join(' '), fill: 'none', stroke: on ? col : '#5c6f86',
+      s.append(svg('polyline', { points: cv.map((p, i) => `${X(i + 1)},${Y(p)}`).join(' '), fill: 'none', stroke: on ? col : cssVar('--chart-dim'),
         'stroke-width': on ? (rid === ctx.meRid ? 3 : 2.4) : 1.4, opacity: on ? 1 : 0.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
       if (on) cv.forEach((p, i) => {
         const hit = svg('circle', { cx: X(i + 1), cy: Y(p), r: 9, fill: 'transparent', style: 'cursor:pointer' });
@@ -70,7 +70,7 @@ function curves(ctx, weeks) {
     chips.replaceChildren(...ctx.rids.map(rid => {
       const col = colorOf(rid);
       return h('span', { class: 'chip' + (col ? ' on' : ''), onclick: () => { sel.has(rid) ? sel.delete(rid) : (sel.size < 6 && sel.add(rid)); draw(); } },
-        h('i', { style: { background: col || '#5c6f86' } }), ctx.name(rid));
+        h('i', { style: { background: col || 'var(--chart-dim)' } }), ctx.name(rid));
     }));
   }
   draw();
@@ -97,7 +97,7 @@ function dependency(ctx, weeks) {
   return section('What if the top scorer vanished?', 'Remove each team’s #1 scorer (no replacement) and see how its PF rank would change. Bar = share of PF lost.',
     rows.map(r => {
       const d = r.newRank - r.oldRank;
-      const row = h('div', { class: 'row', style: { background: r.rid === ctx.meRid ? '#26405e' : 'var(--surface2)', borderRadius: '8px', padding: '6px 8px', marginBottom: '4px' } },
+      const row = h('div', { class: 'row', style: { background: r.rid === ctx.meRid ? 'var(--mine-row)' : 'var(--surface2)', borderRadius: '8px', padding: '6px 8px', marginBottom: '4px' } },
         h('div', { style: { width: '138px', flex: 'none', overflow: 'hidden' } },
           h('div', { class: 'nm ' + (r.rid === ctx.meRid ? 'me' : ''), style: { width: 'auto' } }, ctx.name(r.rid)),
           h('div', { style: { fontSize: '10px', color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, r.top ? `${r.top.name} · ${f1(r.top.pts)}` : '—')),
@@ -141,7 +141,7 @@ function positionVsAvg(ctx, weeks) {
       },
     })),
     { key: 'total', label: 'Total', align: 'cellc c', sort: r => pd[r.rid].total,
-      cell: r => h('span', { style: { display: 'block', background: '#243448', borderRadius: '4px', padding: '6px 2px', minWidth: '44px', fontSize: '11.5px', fontWeight: 700 } },
+      cell: r => h('span', { style: { display: 'block', background: 'var(--surface2)', borderRadius: '4px', padding: '6px 2px', minWidth: '44px', fontSize: '11.5px', fontWeight: 700 } },
         (pd[r.rid].total >= 0 ? '+' : '−') + Math.abs(Math.round(pd[r.rid].total))) },
   ];
   return section('Points vs league average, by position',

@@ -2,7 +2,7 @@ import * as A from '../analytics.js';
 import { h, esc, f1 } from '../ui.js';
 
 export const label = (ctx, rid) => h('span', { class: rid === ctx.meRid ? 'me' : '' }, ctx.name(rid));
-export const labelHtml = (ctx, rid) => (rid === ctx.meRid ? `<b style="color:#ffd54a">${esc(ctx.name(rid))}</b>` : `<b>${esc(ctx.name(rid))}</b>`);
+export const labelHtml = (ctx, rid) => (rid === ctx.meRid ? `<b class="me">${esc(ctx.name(rid))}</b>` : `<b>${esc(ctx.name(rid))}</b>`);
 
 // Weeks selected by the Data-page range control (defaults to every completed week).
 export function weeksFor(ctx, st) {

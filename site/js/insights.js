@@ -45,20 +45,80 @@ export function streaks(ctx) {
   return out;
 }
 
-// Power index: all-play win% (every team vs every team, every week). Movement compares to a week earlier.
+// ---- Power rankings (Option B, record-first, 100 points) ---------------------------------------
+// Same model as the commissioner's weekly report (docs/report-style/power-rankings.md):
+//   Record 40 (win% x 40), Season PF 25, Recent form 15 (last-3-week average), Roster strength 10
+//   (ESPN projection for next week's starting lineup), Points against 5, Lineup decisions 5 (neutral 2.5
+//   until bench data exists). PF, recent, roster and PA are min-max scaled within the league.
+export const POWER_CATEGORIES = [
+  { key: 'record', label: 'Record', weight: 40, how: 'Win percentage × 40 (ties count half).' },
+  { key: 'pf', label: 'Season points', weight: 25, how: 'Total points for. Best in the league gets 25, worst gets 0, everyone else in between.' },
+  { key: 'recent', label: 'Recent form', weight: 15, how: 'Average score over the last 3 weeks, scaled the same way.' },
+  { key: 'roster', label: 'Roster strength', weight: 10, how: 'ESPN’s projected points for next week’s starting lineup, scaled the same way.' },
+  { key: 'pa', label: 'Points against', weight: 5, how: 'Total points scored against you. The toughest schedule gets 5.' },
+  { key: 'lineup', label: 'Lineup decisions', weight: 5, how: 'Not measured yet (needs bench data), so every team gets a neutral 2.5.' },
+];
+export const POWER_WEIGHTS = Object.fromEntries(POWER_CATEGORIES.map(c => [c.key, c.weight]));
+
+// (x - min) / (max - min); 0.5 for everyone when all values are equal; 0 when a value is missing.
+function minmax(rows, key) {
+  const vals = rows.map(r => r[key]).filter(v => v != null);
+  if (!vals.length) return () => 0;
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  return r => (r[key] == null ? 0 : hi === lo ? 0.5 : (r[key] - lo) / (hi - lo));
+}
+
+export function powerRankings(ctx, week = ctx.completed[ctx.completed.length - 1], { tiers = 5 } = {}) {
+  const weeks = ctx.completed.filter(w => w <= week);
+  if (!weeks.length) return { week, rows: [], projAvailable: false };
+  const next = ctx.data.weeks.find(w => w.week === week + 1);
+  const projOf = rid => next?.matchups.flatMap(m => m.teams).find(t => t.rid === rid)?.proj ?? null;
+
+  const rows = ctx.rids.map(rid => {
+    const r = { rid, w: 0, l: 0, t: 0, pf: 0, pa: 0, scores: [] };
+    for (const w of weeks) {
+      const o = ctx.opp[w]?.[rid];
+      if (o == null) continue;
+      const mine = ctx.score[w][rid], theirs = ctx.score[w][o];
+      r.pf += mine; r.pa += theirs; r.scores.push(mine);
+      if (mine > theirs) r.w++; else if (mine < theirs) r.l++; else r.t++;
+    }
+    const last3 = r.scores.slice(-3);
+    r.games = r.w + r.l + r.t;
+    r.recentAvg = last3.length ? last3.reduce((a, b) => a + b, 0) / last3.length : 0;
+    r.proj = projOf(rid);
+    return r;
+  });
+  const projAvailable = rows.some(r => r.proj != null);
+  const nPF = minmax(rows, 'pf'), nRecent = minmax(rows, 'recentAvg'), nPA = minmax(rows, 'pa'), nProj = minmax(rows, 'proj');
+  for (const r of rows) {
+    r.c = {
+      record: r.games ? POWER_WEIGHTS.record * (r.w + 0.5 * r.t) / r.games : 0,
+      pf: POWER_WEIGHTS.pf * nPF(r),
+      recent: POWER_WEIGHTS.recent * nRecent(r),
+      roster: projAvailable ? POWER_WEIGHTS.roster * nProj(r) : 0,
+      pa: POWER_WEIGHTS.pa * nPA(r),
+      lineup: POWER_WEIGHTS.lineup * 0.5,
+    };
+    r.score = Object.values(r.c).reduce((a, b) => a + b, 0);
+  }
+  rows.sort((a, b) => b.score - a.score || b.w - a.w || b.pf - a.pf);
+  rows.forEach((r, i) => { r.rank = i + 1; });
+  // Tiers: split at the (tiers - 1) biggest score gaps, so a tier is a cluster of teams the math says are close.
+  const gaps = rows.slice(1).map((r, i) => ({ g: rows[i].score - r.score, i }));
+  const breaks = new Set(gaps.sort((a, b) => b.g - a.g).slice(0, Math.max(0, tiers - 1)).map(x => x.i));
+  let tier = 1;
+  rows.forEach((r, i) => { if (i > 0 && breaks.has(i - 1)) tier++; r.tier = tier; });
+  return { week, rows, projAvailable };
+}
+
+// Current rankings with movement since the previous week.
 export function powerIndex(ctx) {
-  const rank = weeks => {
-    if (!weeks.length) return [];
-    const wva = A.weeklyVsAll(ctx, weeks);
-    const pf = Object.fromEntries(ctx.rids.map(r => [r, weeks.reduce((a, w) => a + ctx.score[w][r], 0)]));
-    return ctx.rids.map(rid => {
-      const t = wva[rid].total; const g = t.w + t.l + t.t;
-      return { rid, pct: g ? (t.w + 0.5 * t.t) / g : 0, rec: t, pf: pf[rid] };
-    }).sort((a, b) => b.pct - a.pct || b.pf - a.pf).map((r, i) => ({ ...r, rank: i + 1 }));
-  };
-  const now = rank(ctx.completed);
-  const before = Object.fromEntries(rank(ctx.completed.slice(0, -1)).map(r => [r.rid, r.rank]));
-  return now.map(r => ({ ...r, move: before[r.rid] ? before[r.rid] - r.rank : 0 }));
+  const last = ctx.completed[ctx.completed.length - 1];
+  const now = powerRankings(ctx, last);
+  const prevWeek = ctx.completed[ctx.completed.length - 2];
+  const before = prevWeek != null ? Object.fromEntries(powerRankings(ctx, prevWeek).rows.map(r => [r.rid, r.rank])) : {};
+  return now.rows.map(r => ({ ...r, rec: { w: r.w, l: r.l, t: r.t }, move: before[r.rid] ? before[r.rid] - r.rank : 0 }));
 }
 
 // Ticker feed: approved league news first, then automatic headlines.

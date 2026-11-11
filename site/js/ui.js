@@ -79,11 +79,18 @@ export function heat(frac) {
   if (frac >= 0.16) return { bg: '#f4b183', fg: '#5a2d00' };
   return { bg: '#e4604f', fg: '#ffffff' };
 }
+// ---- Theme ------------------------------------------------------------------------------
+export const isLight = () => document.documentElement.dataset.theme === 'light';
+// Read a color token from the stylesheet so charts follow the light/dark theme.
+export const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+export const meColor = () => cssVar('--me') || '#ffd54a';
+
 const mix = (c1, c2, a) => c1.map((v, i) => Math.round(v + (c2[i] - v) * a));
 export function diverge(z) { // z in standard deviations; blue above, red below
   const a = Math.min(Math.abs(z) / 2, 1);
-  const c = mix([56, 56, 53], z >= 0 ? [42, 120, 214] : [208, 59, 59], a);
-  return { bg: `rgb(${c.join(',')})`, fg: a > 0.45 ? '#fff' : '#e8eef6' };
+  const light = isLight();
+  const c = mix(light ? [236, 239, 243] : [56, 56, 53], z >= 0 ? [42, 120, 214] : [208, 59, 59], a);
+  return { bg: `rgb(${c.join(',')})`, fg: a > 0.45 ? '#fff' : light ? '#1b2430' : '#e8eef6' };
 }
 export const POS_COLORS = { QB: '#3987e5', RB: '#d95926', WR: '#199e70', TE: '#c98500', K: '#d55181', DEF: '#008300' };
 export const POS_INK = { QB: '#fff', RB: '#fff', WR: '#fff', TE: '#0b0b0b', K: '#fff', DEF: '#fff' };
