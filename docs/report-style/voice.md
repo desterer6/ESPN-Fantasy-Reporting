@@ -3,6 +3,18 @@
 The reports are a group-chat newsletter, not a sports column. Facts set up the story and the jokes
 make it worth reading. The published example in [examples/](examples/) beats any rule here.
 
+## Consistent vs. fresh
+
+David wants every report to feel like the same newsletter while staying fun and fresh.
+
+| Keep the same every week | Change every week |
+|---|---|
+| Section order, headers, dividers and title-line emoji signature for each league | Comparisons, punchlines and closing lines |
+| Facts in every matchup: final score, both new records, streaks that matter | Tier names (never reused) |
+| Manager nicknames and each team's storyline premise | The next chapter of each storyline |
+| Option B math, tier splitting and how movement is measured | The current-events hook |
+| ALL CAPS for the outrageous, normal case for supporting stats, emoji at sentence ends | Which stat leads, so the format doesn't read like a template |
+
 ## Structure of a weekly post
 
 1. **Title line:** `# 🏈🔥 <LEAGUE> 2026 - WEEK <N> RECAP 🔥🏈` plus a trailing emoji string
