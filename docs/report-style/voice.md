@@ -86,6 +86,10 @@ David wants every report to feel like the same newsletter while staying fun and 
 * Team name
 ```
 
+**Never mention power scores or any scorecard numbers in the published rankings** (David's rule).
+The math only decides the order and the tiers. Show team names, tiers and movement markers, and keep
+the intelligence report to records, streaks and points scored.
+
 Movement is `(+N)` or `(-N)` against last week's published ranking. Unchanged teams get no marker.
 Tier names change every week. The math decides the groups, and the comedy decides the names.
 Close with one all-caps **INTELLIGENCE REPORT** paragraph explaining the biggest moves.
