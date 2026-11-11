@@ -8,14 +8,14 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLeagueData, defaultSeason, regularPeriods } from './espn.mjs';
+import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(await fs.readFile(path.join(root, 'config.json'), 'utf8'));
 const leagueId = String(process.env.ESPN_LEAGUE_ID || cfg.leagueId || '').trim();
 const season = Number(process.env.ESPN_SEASON || cfg.season || defaultSeason());
-const s2 = process.env.ESPN_S2?.trim();
-const swid = process.env.SWID?.trim();
+const s2 = cleanCookie(process.env.ESPN_S2, 'espn_s2');
+const swid = normalizeSwid(cleanCookie(process.env.SWID, 'SWID'));
 
 if (!/^\d+$/.test(leagueId)) {
   console.error('Set a numeric ESPN league ID in config.json ("leagueId") or the ESPN_LEAGUE_ID variable.');
@@ -37,7 +37,7 @@ async function get(query, extraHeaders = {}, tries = 3) {
         // Not retryable. Never echo the cookie values.
         throw Object.assign(new Error(
           `ESPN refused access (${res.status}). The league is private or the cookies expired: ` +
-          'set/refresh the ESPN_S2 and SWID repository secrets.'), { fatal: true });
+          'set/refresh the ESPN_S2 and SWID repository secrets. ' + cookieDiagnostics(s2, swid)), { fatal: true });
       }
       if (!res.ok) throw new Error(`ESPN ${res.status} ${res.statusText} for ${query.split('&')[0]}`);
       const type = res.headers.get('content-type') || '';

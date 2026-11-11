@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLeagueData, defaultSeason, teamName } from '../scripts/espn.mjs';
+import { buildLeagueData, cleanCookie, cookieDiagnostics, defaultSeason, normalizeSwid, teamName } from '../scripts/espn.mjs';
 import { consistencyChecks, privacyChecks } from './checks.mjs';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
@@ -38,6 +38,14 @@ privacyChecks(data, ok);
 
 ok(defaultSeason(new Date('2027-01-15T00:00:00Z')) === 2026, 'January belongs to the previous season');
 ok(defaultSeason(new Date('2026-09-10T00:00:00Z')) === 2026, 'September is the current season');
+
+// Cookie clean-up (fake values)
+const guid = 'ABCDEF12-3456-7890-ABCD-EF1234567890';
+ok(normalizeSwid(cleanCookie(` SWID="{${guid.toLowerCase()}}"; `, 'SWID')) === `{${guid}}`, 'SWID: prefix, quotes, case, semicolon');
+ok(normalizeSwid(cleanCookie(guid, 'SWID')) === `{${guid}}`, 'SWID: braces added');
+ok(cleanCookie('espn_s2=AEB%2Bx%2Fy', 'espn_s2') === 'AEB%2Bx%2Fy', 'espn_s2: prefix stripped, encoded kept');
+ok(cleanCookie('AEB+x/y=', 'espn_s2') === 'AEB%2Bx%2Fy%3D', 'espn_s2: decoded value re-encoded');
+ok(!cookieDiagnostics('AEBsecret%2B', `{${guid}}`).includes('secret') && cookieDiagnostics('', '').includes('missing'), 'diagnostics never print values');
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

@@ -14,6 +14,30 @@ export const PRO_TEAM = {
   28: 'WSH', 29: 'CAR', 30: 'JAX', 33: 'BAL', 34: 'HOU',
 };
 
+// Cookies pasted into secrets often carry extra text: "espn_s2=" prefixes, quotes, whitespace, a trailing ";".
+export function cleanCookie(value, name) {
+  if (!value) return '';
+  let v = String(value).trim().replace(/;+\s*$/, '');
+  if (v.toLowerCase().startsWith(name.toLowerCase() + '=')) v = v.slice(name.length + 1);
+  v = v.trim().replace(/^["']|["']$/g, '').replace(/\s+/g, '');
+  // DevTools can show espn_s2 URL-decoded; ESPN expects the encoded form.
+  if (name === 'espn_s2' && !v.includes('%') && /[+/=]/.test(v)) v = encodeURIComponent(v);
+  return v;
+}
+
+// SWID must be a GUID wrapped in braces.
+export function normalizeSwid(v) {
+  if (!v) return '';
+  const g = v.replace(/^%7B/i, '{').replace(/%7D$/i, '}').replace(/^\{|\}$/g, '');
+  return `{${g.toUpperCase()}}`;
+}
+
+// Safe-to-log shape of the cookies (never the values) to debug a 401.
+export function cookieDiagnostics(s2, swid) {
+  return `[diagnostics: espn_s2 ${s2 ? `set, ${s2.length} chars${s2.includes('%') ? ', URL-encoded' : ''}` : 'missing'}; ` +
+    `SWID ${swid ? (/^\{[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\}$/.test(swid) ? 'set, valid GUID format' : `set, NOT a GUID (${swid.length} chars)`) : 'missing'}]`;
+}
+
 // The NFL season runs Sep-Feb, so January-July still belong to the previous season.
 export function defaultSeason(now = new Date()) {
   return now.getUTCMonth() < 7 ? now.getUTCFullYear() - 1 : now.getUTCFullYear();
