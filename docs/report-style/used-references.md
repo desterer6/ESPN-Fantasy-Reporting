@@ -24,6 +24,16 @@ Logged from the final published recaps (what David posted, not the drafts).
 
 | Week | Team / manager | Bit used |
 |---|---|---|
+| 1 | Opening | "WE'RE SO BACK"; reading waiver articles like studying for the BAR; the 2026 campaigns have begun |
+| 1 | Matchups | Death Star test fire; Avengers vs. Thanos with all six stones; Sinister Six; McPherson thinks he's Steph Curry; BLT on sourdough; LeBron dragging the Cavs; duct tape and prayer; two raccoons fighting behind a Chili's |
+| 2 | Opening | SAME ABSOLUTE TOMFOOLERY; "the season starts now"; trio outscored a whole roster |
+| 2 | Matchups | David located the end zone, unloaded the clip; "we'll circle back next week"; no Avengers portal; POOP BROWN surviving off vibes; airport Wi-Fi; Dak understood the assignment; 1-1 traffic jam; three-man emergency response team; Week 2 Oppenheimer; "BRO WE GET IT" award |
+| 3 | Opening | League developed a class system; "BRO IT'S STILL EARLY" support group; Ben's fairytale cancelled after two episodes |
+| 3 | Matchups | Actual football, one-possession game; Ben's first economic recession, "dam that's crazy" and kept scrolling; call the National Guard, federal offense; airport Wi-Fi (again); CPR, FATALITY; "BRO WE GET IT" aura badge; "league winning upside"; Odom's team name is prophecy; Amazon warehouse lunch break; PIP meeting with HR (aka Gage); JSN on demon time; "cute" 💅 |
+| 4 | Opening | ONE undefeated, ONE winless, league SOOOOOO UNSERIOUS |
+| 4 | Matchups | Jerry Jones speaking in tongues; Saquon's two points to society; receivers took the week off; Tucker stole it, call the authorities (Tucker is the authorities); Doubs as prime Randy Moss; documentary about market volatility; could've been a war crime; the rebuild has begun; league-wide strike; peasant class; Odom an international threat; US military budget |
+| 5 | Opening | Gage 5-0, Parker 0-5; Ryan owes the fantasy gods money |
+| 5 | Matchups | Shadow realm, "the haters win this time"; +0.02 differential, stock market more stable; kickers are allowed to score; bipolar TE scoring; most cursed man in Arkansas, psychological experiment; US defense budget (again); villain arc; all-you-can-eat buffet; attempted coup failed, unemployed Temu organization, National Guard can stand down |
 | 6 | Opening | Monarchy collapsed; fantasy football government lost control |
 | 6 | David (King Deshaun CeeDees Nuts) | Under federal investigation; the real crime at QB (Watson 9.46, Shough 26.96 on the bench) |
 | 6 | Parker / Silas | Released from fantasy football prison; rebranded Ladd News Bears immediately served the worst news; "only time will tell" clocks |
@@ -90,6 +100,9 @@ Logged from the final published recaps (what David posted, not the drafts).
 
 ## Overused already (rest these first)
 
+- Military budget / National Guard: FF Weeks 3, 4, 5, 9 (opener) and 10 (matchup to watch).
+- Airport Wi-Fi: Weeks 2 and 3. "BRO WE GET IT": Weeks 2 and 3.
+- Economic recession / market volatility: Weeks 3, 4 and 6.
 - Geneva Convention: FF Week 7, Yellowstone Week 8 and FF Week 10 matchup to watch (three times in four weeks).
 - Vet/dying-dog and vibe-check jokes for Dawg Check: Weeks 7, 8 and 9. Rest them.
 - Coup/throne/monarchy/Oval Office for Tucker and Gage: Weeks 6, 7, 8 and 9 in a row. The story is real, so find a new frame (sports dynasty, reality TV, sitcom, heist movie).

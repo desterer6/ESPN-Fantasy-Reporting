@@ -9,15 +9,15 @@ Track organizations by manager, not by team name. Update this file each week wit
 | Tucker | I'm all JAGged up | Former league president on a reelection campaign; nuclear scoring, military-industrial complex jokes |
 | Odom | Love is in the Air | The Love movement: winning streak and friendly league-wide resentment |
 | Greer (CGreer) | Author CGreer | Volatile; 66.30 coma then 156.78 resurrection in Week 9 |
-| Repp | NFL Youngboy is back | Quietly solid, wins the close ones |
-| Gage | Im No Longer in RA (was Im in RA) | 8-1 luck box winning with suspiciously low scores; "lottery without a ticket" |
+| Repp ("Connor", "Coach Repp") | NFL Youngboy is back | Quietly solid, wins the close ones |
+| Gage ("Gage Jackson", "the King") | Im No Longer in RA (was Im in RA) | 8-1 luck box winning with suspiciously low scores; "lottery without a ticket" |
 | Carson | Waddle Deez Nuts | |
-| Ben | Bentonville Football Team | Loses shootouts despite big scores |
+| Ben ("Ben Brown", "POOP BROWN") | Bentonville Football Team | Loses shootouts despite big scores |
 | Ryan | Waiver Wizard | Returned from Azkaban in Week 8; scraped into the 8th seed in Week 9 |
 | Parker ("PWillis") | PARKANSAS | Briefly faked a comeback in Week 8; snatching defeat from the jaws of victory; cancelled comeback tour |
 | David | Dawg Check 🐶✅ | Franchise crisis, losing streak; the veterinarian has stopped answering |
 | Graham ("DIRTY") | Dirty Graham | Lineup blunders (benched Stroud's 35.36 in Week 9), negative defenses |
-| Silas | Ladd News Bears | Ladd News Network losing its cable deals; bottom of the league |
+| Silas ("Will" in the Week 1-2 recaps) | Ladd News Bears | Ladd News Network losing its cable deals; bottom of the league |
 
 ## Yellowstone Ranch - Fayetteville (Sleeper)
 
