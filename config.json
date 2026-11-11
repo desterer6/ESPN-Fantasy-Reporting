@@ -3,5 +3,6 @@
   "season": null,
   "newsFormUrl": "",
   "newsSheetCsvUrl": "",
-  "relegation": 1
+  "relegation": 1,
+  "showArchivedReports": true
 }

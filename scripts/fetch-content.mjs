@@ -7,6 +7,7 @@
 // config.json:
 //   newsFormUrl         public link to the news submission form (shown on the site)
 //   newsSheetCsvUrl     "Publish to web" CSV link of the Google Sheet with news submissions
+//   showArchivedReports false hides the past reports in reports/archive/ (quick undo; default true)
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,12 +41,22 @@ async function sheetCsv(url) {
   return res.text();
 }
 
+// Past reports kept in the repo (reports/archive/*.md), unless switched off in config.json.
+async function archiveFiles() {
+  if (cfg.showArchivedReports === false) return [];
+  const dir = path.join(root, 'reports', 'archive');
+  let names = [];
+  try { names = (await fs.readdir(dir)).filter(n => n.endsWith('.md')).sort(); } catch { return []; }
+  return Promise.all(names.map(async name => ({ name, text: await fs.readFile(path.join(dir, name), 'utf8') })));
+}
+const archive = await archiveFiles();
+
 let prev = null;
 try { prev = JSON.parse(await fs.readFile(dest, 'utf8')); } catch { /* first run */ }
 
 try {
   const [issues, csv] = await Promise.all([issuesWith('weekly-report'), sheetCsv(cfg.newsSheetCsvUrl)]);
-  const out = buildContent({ issues, csv, owner: repo.split('/')[0], newsFormUrl: cfg.newsFormUrl || '' });
+  const out = buildContent({ issues, csv, owner: repo.split('/')[0], newsFormUrl: cfg.newsFormUrl || '', archive });
 
   const strip = o => JSON.stringify({ ...o, generatedAt: null });
   if (prev && strip(prev) === strip(out)) {
@@ -53,14 +64,14 @@ try {
   } else {
     await fs.mkdir(path.dirname(dest), { recursive: true });
     await fs.writeFile(dest, JSON.stringify(out));
-    console.log(`Wrote site/data/content.json: ${out.reports.length} reports, ${out.news.length} news stories`);
+    console.log(`Wrote site/data/content.json: ${out.reports.length} reports (${archive.length} archived), ${out.news.length} news stories`);
   }
 } catch (e) {
   // Content is optional: keep the last good file so the scoreboard still updates.
   console.error(`Content not refreshed: ${e.message}`);
   if (!prev) {
     await fs.mkdir(path.dirname(dest), { recursive: true });
-    await fs.writeFile(dest, JSON.stringify(buildContent({ newsFormUrl: cfg.newsFormUrl || '' })));
+    await fs.writeFile(dest, JSON.stringify(buildContent({ newsFormUrl: cfg.newsFormUrl || '', archive })));
   }
   process.exitCode = 0;
 }

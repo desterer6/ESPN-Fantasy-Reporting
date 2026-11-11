@@ -16,6 +16,7 @@ on:
       - 'site/**'
       - 'scripts/**'
       - 'tests/**'
+      - 'reports/**'
       - 'config.json'
       - '.github/workflows/update.yml'
 

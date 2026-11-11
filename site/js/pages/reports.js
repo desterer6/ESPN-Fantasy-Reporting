@@ -26,7 +26,7 @@ export function renderReports(ctx, content, id) {
   if (r) {
     return h('div', {},
       h('article', { class: 'article' },
-        h('div', { class: 'kicker', style: { marginTop: '22px' } }, r.week ? `Week ${r.week} Report` : 'Weekly Report'),
+        h('div', { class: 'kicker', style: { marginTop: '22px' } }, (r.week ? `Week ${r.week} Report` : 'Weekly Report') + (r.archived ? ' · From the archive' : '')),
         h('h1', {}, r.title),
         h('div', { class: 'byline' }, ['By the Commissioner', fmtDate(r.date)].filter(Boolean).join(' · ')),
         h('div', { class: 'prose', html: renderMarkdown(r.body) })),

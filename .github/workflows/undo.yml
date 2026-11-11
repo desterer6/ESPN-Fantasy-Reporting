@@ -1,0 +1,64 @@
+name: Undo a change
+
+# Quick reversion from the Actions tab: "Undo a change" > Run workflow.
+#   undo-one-commit:  reverses a single commit (paste its SHA from the commit list).
+#   restore-to-point: puts the site's code and content back to how it was at a commit or tag
+#                     (for example 7d25188, the site just before the past weekly reports were added). Live league data is kept.
+# Either way a new commit is added, so the undo itself can be undone, and the site redeploys.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Commit SHA or tag (e.g. 7d25188)'
+        required: true
+      mode:
+        description: 'What to do'
+        type: choice
+        options: [restore-to-point, undo-one-commit]
+        default: restore-to-point
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  undo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # push the undo commit
+      actions: write    # start the deploy workflow afterwards
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check the input
+        env:
+          TARGET: ${{ inputs.target }}
+        run: |
+          if ! printf '%s' "$TARGET" | grep -Eq '^[A-Za-z0-9._/-]{4,100}$'; then echo "Not a commit or tag: $TARGET"; exit 1; fi
+          git rev-parse --verify --quiet "$TARGET^{commit}" >/dev/null || { echo "No commit or tag named $TARGET"; exit 1; }
+      - name: Undo
+        env:
+          TARGET: ${{ inputs.target }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "$MODE" = "undo-one-commit" ]; then
+            git revert --no-edit "$TARGET"
+          else
+            # Code and content from the restore point; keep today's league data and workflows.
+            git rm -rq --ignore-unmatch site scripts tests reports config.json package.json README.md
+            git checkout "$TARGET" -- $(git ls-tree --name-only "$TARGET" site scripts tests reports config.json package.json README.md 2>/dev/null)
+            git checkout HEAD -- site/data
+            git add -A
+            git diff --cached --quiet && { echo "Already matches $TARGET"; exit 0; }
+            git commit -m "Restore site to $TARGET"
+          fi
+          git push origin HEAD:main
+      - name: Redeploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run update.yml --ref main

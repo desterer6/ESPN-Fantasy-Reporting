@@ -1,5 +1,8 @@
 // Tests for weekly reports, news and the safe Markdown renderer. No network: node tests/content.test.mjs
-import { buildContent, parseCsv, parseIssueForm, clean, LIMITS } from '../scripts/content.mjs';
+import { buildContent, parseCsv, parseIssueForm, clean, LIMITS, reportsFromArchive } from '../scripts/content.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { renderMarkdown, excerpt } from '../site/js/markdown.js';
 import * as fx from './fixtures/content-fixture.mjs';
 import { stampHtml, stampJs } from '../scripts/stamp.mjs';
@@ -42,6 +45,19 @@ ok(!html.includes('<script>') && html.includes('&lt;script&gt;'), 'script tag es
 ok(!renderMarkdown('[x](javascript:alert(1))').includes('href'), 'javascript: links not linked');
 ok(!renderMarkdown('<img src=x onerror=alert(1)>').includes('<img'), 'raw HTML escaped');
 ok(excerpt('## Head\n\n**Bold** text [link](https://a.b)', 50) === 'Bold text link', 'excerpt strips markup');
+
+// Archived reports (reports/archive/*.md): kept word for word, merged with issue reports, newest first.
+const arch = reportsFromArchive([{ name: 'x-2026-week03.md', text: 'week: 3\nseason: 2026\ntitle: Old <b>one</b>\ndate: 2026-09-29T15:00:00Z\n---\n## Recap\n\nBody 😭 text' }, { name: 'bad.md', text: 'no separator' }]);
+ok(arch.length === 1 && arch[0].id === 'a-x-2026-week03' && arch[0].week === 3 && arch[0].archived, 'archive file parsed, bad file skipped');
+ok(arch[0].body === '## Recap\n\nBody 😭 text', 'archive body kept as written');
+ok(!renderMarkdown(arch[0].title).includes('<b>'), 'archive title is escaped when shown');
+const merged = buildContent({ issues: fx.issues, owner: 'desterer6', archive: [{ name: 'old.md', text: 'week: 1\nseason: 2026\ntitle: Old\ndate: 2000-01-01T00:00:00Z\n---\nx' }] });
+ok(merged.reports.at(-1).id === 'a-old' && merged.reports.length === c.reports.length + 1, 'archive merged after newer issue reports');
+const repoArchive = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'reports', 'archive');
+const files = fs.existsSync(repoArchive) ? fs.readdirSync(repoArchive).filter(n => n.endsWith('.md')) : [];
+const real = reportsFromArchive(files.map(name => ({ name, text: fs.readFileSync(path.join(repoArchive, name), 'utf8') })));
+ok(real.length === files.length && real.every(r => r.week && r.season && r.date && r.body.length < LIMITS.report), 'every committed archive report parses and fits');
+ok(renderMarkdown('### Tier\n\n4. A\n5. B').includes('<ol start="4">'), 'numbered lists keep their starting number');
 
 // Deploy cache-busting
 ok(stampHtml('<link href="css/style.css"><script src="js/app.js"></script><a href="#/x">', 'abc') === '<link href="css/style.css?v=abc"><script src="js/app.js?v=abc"></script><a href="#/x">', 'stamp html assets only');

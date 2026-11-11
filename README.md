@@ -80,6 +80,17 @@ One-time setup (about 5 minutes):
 To approve a story, tick its checkbox. The site picks it up at the next run (twice daily, plus the game-day runs) or right away with Actions → Run workflow.
 Only the Published tab is public; unapproved submissions stay private in your sheet.
 
+## Past weekly reports (archive)
+
+Your earlier reports live in `reports/archive/`, one Markdown file per week, word for word. Each
+file starts with `week`, `season`, `title` and `date` lines, then `---`, then the report. Add a file to
+publish another past week. They appear on the Weekly Report page next to the ones you post as issues.
+
+## Undoing a change
+
+- **Hide the archived reports:** set `"showArchivedReports": false` in `config.json` (edit it on GitHub). The site updates in a couple of minutes. Set it back to `true` to show them again.
+- **Undo anything:** Actions tab → **Undo a change** → Run workflow. Choose `restore-to-point` and paste a commit SHA to put the site back to that moment (`7d25188` is the site just before the archive was added), or `undo-one-commit` to reverse a single commit. Live league data is kept, and the undo is itself a commit you can undo.
+
 ## League rules
 
 - **Playoffs:** the bracket size comes from ESPN's league settings (8 teams here), seeded by ESPN. No consolation bracket.
