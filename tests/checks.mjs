@@ -41,3 +41,20 @@ export function privacyChecks(data, ok) {
   }
   ok(!/\{[0-9A-F]{8}-[0-9A-F]{4}-/i.test(text), 'site data must not contain ESPN member IDs ({GUID})');
 }
+
+// League history file (site/data/history.json): well-formed seasons and no personal data.
+export function historyChecks(hist, ok) {
+  privacyChecks(hist, ok);
+  ok(Array.isArray(hist.seasons), 'history has a seasons list');
+  const years = hist.seasons.map(s => s.season);
+  ok(new Set(years).size === years.length, 'each season appears once');
+  for (const s of hist.seasons) {
+    ok(Number.isInteger(s.season) && s.season > 2000, `season year ${s.season}`);
+    ok(Array.isArray(s.teams) && s.teams.length >= 2, `${s.season}: has teams`);
+    const ids = new Set(s.teams.map(t => t.id));
+    ok(s.games.every(g => ids.has(g.h) && ids.has(g.a)), `${s.season}: every game team exists`);
+    ok(s.games.every(g => g.win === 0 || g.win === g.h || g.win === g.a), `${s.season}: every winner played`);
+    ok(s.champion == null || ids.has(s.champion), `${s.season}: champion is a team`);
+    ok(s.teams.every(t => typeof t.name === 'string' && t.name.length > 0), `${s.season}: team names`);
+  }
+}

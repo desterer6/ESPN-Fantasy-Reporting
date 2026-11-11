@@ -11,11 +11,13 @@ import { renderPlayoffs } from './pages/playoffs.js';
 import { renderHistory } from './pages/history.js';
 import { renderSchedule } from './pages/schedule.js';
 import { renderRoster } from './pages/roster.js';
+import { renderLeagueHistory } from './pages/league-history.js';
 
 const app = document.getElementById('app');
 const state = { from: null, to: null, scoresWeek: null };
 let ctx = null;
 let content = { reports: [], news: [], newsFormUrl: '' };
+let leagueHist; // league history: undefined until first needed, null if it could not be loaded
 
 function rangeControls() {
   const ws = ctx.completed;
@@ -38,7 +40,7 @@ function statsPage(sub) {
   return h('div', {},
     h('h1', {}, 'Stats Lab'),
     h('p', { class: 'dek' }, 'Deep dives: how the season unfolded, schedule luck, and how each roster scores.'),
-    h('nav', { class: 'sub' }, tab('history', 'Season history'), tab('schedule', 'Schedule luck'), tab('roster', 'Roster breakdown')),
+    h('nav', { class: 'sub' }, tab('history', 'This season'), tab('schedule', 'Schedule luck'), tab('roster', 'Roster breakdown')),
     ...body);
 }
 
@@ -60,6 +62,12 @@ function route(keepScroll = false) {
     else if (page === 'power') view = renderPower(ctx, state, () => route(true));
     else if (page === 'reports') view = renderReports(ctx, content, parts[1]);
     else if (page === 'news') view = renderNews(content, parts[1]);
+    else if (page === 'league-history') {
+      if (leagueHist === undefined) {
+        view = h('div', { class: 'loading' }, 'Loading league history…');
+        loadJson('data/history.json', null).then(x => { leagueHist = x; if (document.body.dataset.page === 'league-history') route(true); });
+      } else view = renderLeagueHistory(ctx, leagueHist, Number(parts[1]) || null);
+    }
     else if (page === 'stats') view = statsPage(['schedule', 'roster'].includes(parts[1]) ? parts[1] : 'history');
     else view = renderHome(ctx, content);
   } catch (e) {

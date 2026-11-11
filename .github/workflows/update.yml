@@ -54,6 +54,9 @@ jobs:
       - name: Test power rankings (offline fixture)
         run: node tests/insights.test.mjs
 
+      - name: Test league history (offline fixture)
+        run: node tests/history.test.mjs
+
       - name: Collect weekly reports and approved news
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -71,6 +74,17 @@ jobs:
           SWID: ${{ secrets.SWID }}
         run: node scripts/fetch.mjs
 
+      - name: Fetch league history from ESPN
+        # Past seasons never change: each is saved once, so this only does work for new or unfinished seasons.
+        # A failure here keeps the saved history and does not stop the deploy.
+        continue-on-error: true
+        env:
+          ESPN_LEAGUE_ID: ${{ vars.ESPN_LEAGUE_ID }}
+          ESPN_SEASON: ${{ vars.ESPN_SEASON }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          SWID: ${{ secrets.SWID }}
+        run: node scripts/fetch-history.mjs
+
       - name: Verify data (consistency + no personal data)
         run: node tests/verify.mjs
 
@@ -79,6 +93,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site/data/league.json site/data/content.json
+          if [ -f site/data/history.json ]; then git add site/data/history.json; fi
           if git diff --cached --quiet; then
             echo "No data changes to commit."
           else

@@ -92,6 +92,10 @@ Add a file to `news/` (for example `news/2026-11-11-trade-deadline.md`) with `he
 `date` lines, then `---`, then the story. It shows on the News page and the scrolling banner within a
 couple of minutes. Delete the file to take it down.
 
+## League history
+
+The **League History** tab shows every past season ESPN has for the league: champions, all-time standings, a record book and each season's final standings and playoffs. `scripts/fetch-history.mjs` pulls it during the normal update and saves it in `site/data/history.json`. Finished seasons are fetched once and then kept; a season is added automatically once it is over. Only team names and scores are saved. Teams are matched across seasons by their ESPN team slot.
+
 ## Undoing a change
 
 - **Hide the archived reports:** set `"showArchivedReports": false` in `config.json` (edit it on GitHub). The site updates in a couple of minutes. Set it back to `true` to show them again.
