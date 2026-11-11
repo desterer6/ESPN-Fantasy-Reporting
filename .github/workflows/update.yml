@@ -1,0 +1,85 @@
+name: Update data and deploy
+
+on:
+  schedule:
+    # Times are UTC. ESPN finalizes a week after Monday Night Football.
+    - cron: '50 5 * * 1'     # Sunday ~11:50 PM Central: live scores after Sunday games
+    - cron: '0 10 * * 2'     # Tuesday ~4 AM Central: final scores for the week
+    - cron: '0 10 * * 5'     # Friday ~4 AM Central: Thursday game + ESPN stat corrections
+  workflow_dispatch: {}       # "Run workflow" button for a manual refresh
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'config.json'
+      - '.github/workflows/update.yml'
+
+# Least privilege: nothing by default, each job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # commit the refreshed league.json
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test the ESPN transform (offline fixture)
+        run: node tests/transform.test.mjs
+
+      - name: Fetch league data from ESPN
+        env:
+          ESPN_LEAGUE_ID: ${{ vars.ESPN_LEAGUE_ID }}
+          ESPN_SEASON: ${{ vars.ESPN_SEASON }}
+          ESPN_S2: ${{ secrets.ESPN_S2 }}   # only needed for private leagues
+          SWID: ${{ secrets.SWID }}
+        run: node scripts/fetch.mjs
+
+      - name: Verify data (consistency + no personal data)
+        run: node tests/verify.mjs
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/league.json
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+          else
+            git commit -m "Update league data"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+        if: ${{ vars.DEPLOY_PAGES != 'false' }}
+
+      - uses: actions/upload-pages-artifact@v3
+        if: ${{ vars.DEPLOY_PAGES != 'false' }}
+        with:
+          path: site
+
+  deploy:
+    # Skipped when the repository variable DEPLOY_PAGES is 'false' (e.g. hosting on Cloudflare Pages instead).
+    if: ${{ vars.DEPLOY_PAGES != 'false' }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

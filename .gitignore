@@ -1,0 +1,25 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Secrets and local config. ESPN cookies (espn_s2, SWID) live in GitHub secrets or your shell, never in files here.
+.env
+.env.*
+*.pem
+cookies*.txt
+
+# Raw ESPN responses can hold member names and IDs; only the cleaned site/data/league.json is committed.
+raw/
+*.raw.json
+
+# Local scratch and logs
+*.log
+scratch/
+tmp/
+screenshots/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

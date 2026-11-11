@@ -1,0 +1,17 @@
+{
+  "name": "espn-league-report",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Auto-updating analytics site for an ESPN fantasy football league",
+  "scripts": {
+    "fetch": "node scripts/fetch.mjs",
+    "test": "node tests/transform.test.mjs && node tests/verify.mjs",
+    "test:transform": "node tests/transform.test.mjs",
+    "demo": "node scripts/demo.mjs",
+    "serve": "node scripts/serve.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
