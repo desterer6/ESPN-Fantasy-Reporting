@@ -184,7 +184,7 @@ table.compact .r { text-align: right; } table.compact .c { text-align: center; }
 table.compact .rk { width: 22px; color: var(--muted); font-weight: 700; }
 table.compact .nm { max-width: 170px; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
 table.compact tr.mine td { background: var(--mine-tint); }
-table.compact tr.cut td { border-top: 2px dashed var(--faint); }
+table.compact tr.cut td, table.data tr.cut td { border-top: 2px dashed var(--faint); }
 .mv { font-size: 11px; font-weight: 700; } .mv.up { color: var(--good); } .mv.down { color: var(--warn); } .mv.flat { color: var(--faint); }
 .streak { font-weight: 700; font-size: 12px; } .streak.W { color: var(--good); } .streak.L { color: var(--warn); }
 
@@ -232,7 +232,7 @@ table.data td.stick { box-shadow: 6px 0 6px -4px var(--shadow); }
 .chip i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; font-size: 12px; color: var(--muted); }
 select { background: var(--surface2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px; font-size: 12px; }
-button.btn { background: var(--surface2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+button.btn, a.btn { display: inline-flex; align-items: center; background: var(--surface2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
 
 .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 10.5px; color: var(--legend); margin-bottom: 10px; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
@@ -324,7 +324,7 @@ svg.chart .grid-line { stroke: var(--line); stroke-width: 1; }
 /* ---- Touch: comfortable tap targets ---------------------------------------------------- */
 @media (pointer: coarse) {
   /* 16px stops iOS Safari from zooming the page when a dropdown is tapped */
-  select, button.btn { min-height: 38px; padding: 6px 10px; font-size: 16px; }
+  select, button.btn, a.btn { min-height: 38px; padding: 6px 10px; font-size: 16px; }
   .me-pick select { min-height: 36px; font-size: 16px; }
   .hl a { padding: 13px 0; }
   table.data th { cursor: pointer; }
@@ -459,3 +459,49 @@ svg.chart .grid-line { stroke: var(--line); stroke-width: 1; }
   .mw-num { font-size: 28px; }
   .mw-vs { width: 32px; height: 32px; font-size: 13px; }
 }
+
+/* Upcoming games and rest of season */
+.game-team .sc.proj { color: var(--muted); font-size: 22px; }
+.game-foot { font-size: 11.5px; color: var(--muted); padding: 8px 12px; border-top: 1px solid var(--line); background: var(--surface2); }
+.rest { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 720px) { .rest { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rest .card { margin: 0; }
+.rest h2 a { color: inherit; }
+.rest ul { list-style: none; margin: 0; padding: 0; }
+.rest li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 4px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 14px; font-weight: 600; }
+.rest li small { font-weight: 400; color: var(--muted); font-size: 12px; }
+.rest li i { font-style: normal; font: 700 11px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--brand); margin: 0 6px; }
+.rest li.mine { background: var(--mine-tint); margin: 0 -8px; padding-left: 8px; padding-right: 8px; }
+.rest .me { color: var(--me); }
+
+/* Playoffs */
+.champ { display: flex; flex-direction: column; gap: 6px; padding: 18px 16px; margin: 16px 0; border-radius: 8px; background: linear-gradient(120deg, var(--lead-from), var(--lead-to)); color: var(--lead-text); }
+.champ b { font: 800 30px/1.05 var(--display); }
+.bracket { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 760px) { .bracket { grid-template-columns: repeat(var(--rounds), minmax(0, 1fr)); } .bk-games { height: 100%; justify-content: space-around; } .bk-round { display: flex; flex-direction: column; } }
+.bk-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 2px solid var(--brand); }
+.bk-head b { font: 800 14px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; }
+.bk-head span { font-size: 11px; color: var(--muted); }
+.bk-games { display: flex; flex-direction: column; gap: 10px; }
+.bk-game { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--surface); position: relative; }
+.bk-game.live { border-color: var(--brand); }
+.bk-live { position: absolute; top: 0; right: 0; font: 700 9px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; background: var(--brand); color: #fff; padding: 3px 6px; border-bottom-left-radius: 4px; }
+.bk-team { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 10px; font-size: 13.5px; font-weight: 600; }
+.bk-team + .bk-team { border-top: 1px solid var(--line); }
+.bk-team .sd { font: 800 13px/1 var(--display); color: var(--muted); text-align: center; }
+.bk-team .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bk-team .pt { font: 800 15px/1 var(--display); font-variant-numeric: tabular-nums; }
+.bk-team.won { background: var(--surface2); }
+.bk-team.won .nm { font-weight: 800; }
+.bk-team.lost .nm, .bk-team.lost .pt { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+.bk-team.tbd .nm { color: var(--faint); font-style: italic; font-weight: 500; }
+.bk-team.me .nm { color: var(--me); }
+.pbadge { display: inline-block; font: 700 10px/1 var(--display); letter-spacing: .1em; text-transform: uppercase; padding: 4px 6px; border-radius: 3px; white-space: nowrap; }
+.pbadge.in { background: var(--good); color: var(--bg); }
+.pbadge.out { background: var(--surface2); color: var(--faint); }
+.pbadge.maybe { border: 1px solid var(--good); color: var(--good); }
+.pbadge.chase { border: 1px solid var(--line); color: var(--muted); }
+.odds { display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end; }
+.odds .track { display: block; width: 44px; height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; }
+.odds i { display: block; height: 100%; background: var(--good); }
+.odds b { min-width: 34px; text-align: right; }

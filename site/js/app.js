@@ -7,6 +7,7 @@ import { renderStandings } from './pages/standings.js';
 import { renderReports } from './pages/reports.js';
 import { renderNews } from './pages/news.js';
 import { renderPower } from './pages/power.js';
+import { renderPlayoffs } from './pages/playoffs.js';
 import { renderHistory } from './pages/history.js';
 import { renderSchedule } from './pages/schedule.js';
 import { renderRoster } from './pages/roster.js';
@@ -47,7 +48,7 @@ function route(keepScroll = false) {
   const parts = (location.hash.replace(/^#\/?/, '') || '').split('/').filter(Boolean).map(decodeURIComponent);
   const page = parts[0] || 'home';
   document.querySelectorAll('[data-tab]').forEach(a => {
-    const on = a.dataset.tab === (page === 'power' ? 'standings' : page);
+    const on = a.dataset.tab === (['power', 'playoffs'].includes(page) ? 'standings' : page);
     a.classList.toggle('on', on);
     on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
   });
@@ -55,6 +56,7 @@ function route(keepScroll = false) {
   try {
     if (page === 'scores') view = renderScores(ctx, state, () => route(true));
     else if (page === 'standings') view = renderStandings(ctx);
+    else if (page === 'playoffs') view = renderPlayoffs(ctx);
     else if (page === 'power') view = renderPower(ctx, state, () => route(true));
     else if (page === 'reports') view = renderReports(ctx, content, parts[1]);
     else if (page === 'news') view = renderNews(content, parts[1]);

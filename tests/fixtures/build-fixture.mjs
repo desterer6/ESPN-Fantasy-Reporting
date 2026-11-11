@@ -14,7 +14,7 @@ const SLOT = [0, 2, 2, 4, 4, 6, 23, 17, 16];
 
 const teams = Array.from({ length: N }, (_, i) => ({
   id: i + 1, abbrev: `T${i + 1}`, location: 'Fixture', nickname: `Team ${i + 1}`,
-  owners: [`{SECRET-MEMBER-${i + 1}}`], record: { overall: { wins: 0, losses: 0, ties: 0 } },
+  owners: [`{SECRET-MEMBER-${i + 1}}`], record: { overall: { wins: 0, losses: 0, ties: 0 } }, playoffSeed: i + 1,
 }));
 const members = teams.map(t => ({ id: t.owners[0], displayName: `privateuser${t.id}`, firstName: 'Secret', lastName: `Person${t.id}` }));
 const roster = tid => [...POS, 2, 3].map((pos, k) => ({ id: tid * 100 + k, pos, slot: k < POS.length ? SLOT[k] : 20 }));
@@ -53,7 +53,7 @@ schedule.push({ id: mid++, matchupPeriodId: 13, playoffTierType: 'WINNERS_BRACKE
 const league = {
   id: 123456, seasonId: 2026, scoringPeriodId: CURRENT,
   status: { currentMatchupPeriod: CURRENT, isActive: true, latestScoringPeriod: CURRENT },
-  settings: { name: 'Fixture League', scheduleSettings: { matchupPeriodCount: 12, matchupPeriods: Object.fromEntries(Array.from({ length: 14 }, (_, i) => [i + 1, [i + 1]])) } },
+  settings: { name: 'Fixture League', scheduleSettings: { matchupPeriodCount: 12, playoffTeamCount: 4, playoffMatchupPeriodLength: 1, playoffSeedingRule: 'TOTAL_POINTS_SCORED', matchupPeriods: Object.fromEntries(Array.from({ length: 14 }, (_, i) => [i + 1, [i + 1]])) } },
   members, teams, schedule,
 };
 fs.writeFileSync(path.join(dir, 'espn-league.json'), JSON.stringify(league));

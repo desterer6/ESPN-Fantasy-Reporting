@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData } from '../scripts/espn.mjs';
 import * as A from '../site/js/analytics.js';
+import { playoffSize, remainingGames, currentSeeds, clinchStatus, playoffOdds, bracket, bracketOrder, regularSeasonDone } from '../site/js/playoffs.js';
 import { powerRankings, powerIndex, matchupToWatch, tickerItems, POWER_CATEGORIES, POWER_WEIGHTS } from '../site/js/insights.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
@@ -58,6 +59,46 @@ ok(mw.why.length >= 1, 'gives reasons');
 ok(tickerItems(ctx).some(i => i.tag === `WEEK ${mw.week} MATCHUP`), 'matchup appears in the ticker');
 const preseason = A.prepare({ ...data, weeks: data.weeks.map(w => ({ ...w, complete: false })) });
 ok(matchupToWatch(preseason) === null, 'nothing before any week is final');
+
+// Playoffs: data from ESPN's schedule and settings.
+ok(data.upcoming.length === 12 - 4 && data.upcoming[0].week === 5, 'rest of the regular season comes from ESPN schedule');
+ok(data.upcoming.every(u => u.games.length === 4 && u.games.every(g => g.length === 2)), 'every upcoming week has full matchups');
+ok(data.playoffs.teams === 4 && data.playoffs.rounds.length === 1 && data.playoffs.rounds[0].games[0].winner === null, 'playoff settings and bracket from ESPN');
+ok(playoffSize(ctx) === 4, 'playoff size from ESPN settings');
+ok(remainingGames(ctx).length === 4 * (12 - 3), 'remaining games: live week 4 plus weeks 5-12');
+ok(!regularSeasonDone(ctx), 'regular season not over');
+ok(JSON.stringify(bracketOrder(8)) === '[1,8,4,5,2,7,3,6]', '8-team bracket: 1v8, 4v5, 2v7, 3v6');
+ok(JSON.stringify(bracketOrder(6)) === '[1,8,4,5,2,7,3,6]' , '6-team pads to 8 (7 and 8 are byes)');
+const cs = currentSeeds(ctx);
+ok(cs.source === 'espn' && cs.rows.map(r => r.seed).join() === '1,2,3,4,5,6,7,8', 'uses ESPN seeds when published');
+const noSeed = JSON.parse(JSON.stringify(data)); noSeed.teams.forEach(t => { t.seed = null; });
+const nsCtx = A.prepare(noSeed); const cs2 = currentSeeds(nsCtx);
+ok(cs2.source === 'standings' && cs2.rows.every((r, i) => r.seed === i + 1 && r.rid === A.standings(nsCtx)[i].rid), 'falls back to standings order');
+const od = playoffOdds(ctx, { sims: 2000 });
+const sumPct = Object.values(od.odds).reduce((a, o) => a + o.pct, 0);
+close(sumPct, 4, 'playoff odds add up to the number of spots');
+ok(Object.values(od.odds).every(o => o.pct >= 0 && o.pct <= 1), 'odds within 0-1');
+ok(JSON.stringify(playoffOdds(ctx, { sims: 2000 })) === JSON.stringify(od), 'odds are stable between loads');
+const cl = clinchStatus(ctx);
+ok(Object.values(cl).every(v => v === null), 'nobody clinched or eliminated after 3 of 12 weeks');
+// Late season: 1 week left, a 3-game lead clinches and a 3-game deficit eliminates.
+const fake = { rids: [1, 2, 3, 4, 5, 6], data: { playoffs: { teams: 2 }, league: { regularSeasonEnd: 10 }, weeks: [], upcoming: [{ week: 10, games: [[1, 2], [3, 4], [5, 6]] }] }, completed: [] };
+const rowsF = [[1, 9], [2, 7], [3, 6], [4, 6], [5, 3], [6, 2]].map(([rid, w]) => ({ rid, w, l: 9 - w, t: 0, pf: 0 }));
+const clF = clinchStatus(fake, rowsF);
+ok(clF[1] === 'clinched' && clF[2] === null && clF[5] === 'eliminated' && clF[6] === 'eliminated' && clF[3] === null, 'clinch/elimination math');
+const br = bracket(ctx, cs.rows);
+ok(br.rounds.length === 2 && br.rounds[0].games.length === 2 && br.rounds[1].games.length === 1, '4-team bracket has semis and a final');
+ok(br.rounds[0].games[0].top.seed === 1 && br.rounds[0].games[0].bottom.seed === 4 && br.rounds[0].games[1].top.seed === 2, 'seeds placed 1v4, 2v3');
+ok(br.rounds[0].name === 'Semifinals' && br.rounds[1].name === 'Championship', 'round names');
+// ESPN results flow through the bracket.
+const done = JSON.parse(JSON.stringify(data)); done.league.currentWeek = 14;
+done.playoffs.rounds = [{ week: 13, nflWeeks: [13], games: [
+  { teams: [{ rid: 1, pts: 120 }, { rid: 4, pts: 99 }], winner: 1 }, { teams: [{ rid: 2, pts: 90 }, { rid: 3, pts: 101 }], winner: 3 }] },
+  { week: 14, nflWeeks: [14], games: [{ teams: [{ rid: 3, pts: 130 }, { rid: 1, pts: 110 }], winner: 3 }] }];
+const dctx = A.prepare(done);
+const br2 = bracket(dctx, currentSeeds(dctx).rows);
+ok(br2.rounds[1].games[0].top.rid === 1 && br2.rounds[1].games[0].bottom.rid === 3, 'winners advance to the final in bracket order');
+ok(br2.rounds[1].games[0].pts[3] === 130 && br2.champion === 3, 'champion from ESPN result');
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

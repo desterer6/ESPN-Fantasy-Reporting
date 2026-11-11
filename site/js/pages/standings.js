@@ -2,6 +2,7 @@ import * as A from '../analytics.js';
 import { h, f1, signed, section, sortableTable } from '../ui.js';
 import { streaks } from '../insights.js';
 import { label } from './common.js';
+import { regularSeasonDone } from '../playoffs.js';
 
 export function renderStandings(ctx) {
   const last = ctx.completed[ctx.completed.length - 1];
@@ -28,6 +29,6 @@ export function renderStandings(ctx) {
   return h('div', {},
     h('h1', {}, 'Standings'),
     h('p', { class: 'dek' }, last ? `Through Week ${last} of the ${ctx.data.league.season} regular season (${ctx.data.league.regularSeasonEnd} weeks).` : 'No completed weeks yet.'),
-    h('nav', { class: 'sub' }, h('a', { href: '#/standings', class: 'on' }, 'League table'), h('a', { href: '#/power' }, 'Power rankings')),
+    h('nav', { class: 'sub' }, h('a', { href: '#/standings', class: 'on' }, 'League table'), h('a', { href: '#/power' }, 'Power rankings'), h('a', { href: '#/playoffs' }, regularSeasonDone(ctx) ? 'Playoffs' : 'Projected playoffs')),
     section('League table', 'Tap a column to sort. All-play is the record a team would have playing everyone every week; Luck compares real wins with that.', table));
 }

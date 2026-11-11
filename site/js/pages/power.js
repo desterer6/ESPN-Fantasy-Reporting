@@ -1,3 +1,4 @@
+import { regularSeasonDone } from '../playoffs.js';
 import * as A from '../analytics.js';
 import { h, f1, f2, attachTip, esc, sortableTable, section } from '../ui.js';
 import { powerRankings, POWER_CATEGORIES } from '../insights.js';
@@ -75,7 +76,7 @@ export function renderPower(ctx, state, rerender) {
   return h('div', {},
     h('h1', {}, 'Power Rankings'),
     h('p', { class: 'dek' }, `Who’s actually the best team right now, scored out of 100. Tap any bar segment to see where the points come from.`),
-    h('nav', { class: 'sub' }, h('a', { href: '#/standings' }, 'League table'), h('a', { href: '#/power', class: 'on' }, 'Power rankings')),
+    h('nav', { class: 'sub' }, h('a', { href: '#/standings' }, 'League table'), h('a', { href: '#/power', class: 'on' }, 'Power rankings'), h('a', { href: '#/playoffs' }, regularSeasonDone(ctx) ? 'Playoffs' : 'Projected playoffs')),
     h('div', { class: 'controls', style: { margin: '10px 0 6px' } }, sel),
     h('div', { class: 'layout' },
       h('div', {}, section(`Rankings after Week ${week}`, null, legend, list)),

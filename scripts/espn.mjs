@@ -149,7 +149,38 @@ export function buildLeagueData({ league, boxByPeriod = {}, leagueId, now = new 
     name: teamName(t),
     teamName: null,
     official: official[t.id],
+    seed: Number.isInteger(t.playoffSeed) && t.playoffSeed > 0 ? t.playoffSeed : null, // ESPN's current playoff seed
   })).sort((a, b) => a.rosterId - b.rosterId);
+
+  // Rest of the regular season, straight from ESPN's schedule: weeks not already in `weeks`.
+  const lastListed = weeks.length ? weeks[weeks.length - 1].week : 0;
+  const upcoming = [];
+  for (const { mp } of periods) {
+    if (mp <= lastListed) continue;
+    const games = schedule.filter(m => m.matchupPeriodId === mp && m.home && m.away).map(m => [m.home.teamId, m.away.teamId]);
+    if (games.length) upcoming.push({ week: mp, games });
+  }
+
+  // Playoffs: league settings plus the winners bracket as ESPN fills it in (no consolation games).
+  const ss = league.settings?.scheduleSettings || {};
+  const periodMap = ss.matchupPeriods || {};
+  const bracket = (league.schedule || []).filter(m => m.playoffTierType === 'WINNERS_BRACKET' && m.matchupPeriodId > lastRegular);
+  const rounds = [...new Set(bracket.map(m => m.matchupPeriodId))].sort((a, b) => a - b).map(mp => ({
+    week: mp,
+    nflWeeks: (periodMap[mp] || [mp]).map(Number),
+    games: bracket.filter(m => m.matchupPeriodId === mp).map(m => {
+      const decided = !!m.winner && m.winner !== 'UNDECIDED';
+      const sides = [m.home, m.away].filter(x => x && x.teamId != null);
+      const win = m.winner === 'HOME' ? m.home?.teamId : m.winner === 'AWAY' ? m.away?.teamId : null;
+      return { teams: sides.map(x => ({ rid: x.teamId, pts: sidePoints(x, decided) })), winner: decided ? win ?? null : null };
+    }),
+  }));
+  const playoffs = {
+    teams: Number.isInteger(ss.playoffTeamCount) ? ss.playoffTeamCount : null,
+    roundLength: Number.isInteger(ss.playoffMatchupPeriodLength) ? ss.playoffMatchupPeriodLength : 1,
+    seedingRule: typeof ss.playoffSeedingRule === 'string' ? ss.playoffSeedingRule : null,
+    rounds,
+  };
 
   return {
     generatedAt: now.toISOString(),
@@ -165,6 +196,8 @@ export function buildLeagueData({ league, boxByPeriod = {}, leagueId, now = new 
     },
     teams,
     weeks,
+    upcoming,
+    playoffs,
     players,
   };
 }
