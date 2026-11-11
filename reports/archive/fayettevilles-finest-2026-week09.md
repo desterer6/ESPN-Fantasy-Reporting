@@ -53,8 +53,6 @@ _Tiers, order and movement as published. The original intro to the rankings wasn
 ### THE BLOCKBUSTER GOING-OUT-OF-BUSINESS SALE
 12. Ladd News Bears
 
-Option B power scores: #1 83.98 · #2 66.46 · #3 64.44 · #4 58.72 · #5 55.79 · #6 51.34 · #7 51.30 · #8 48.27 · #9 46.23 · #10 38.71 · #11 29.48 · #12 12.94
-
 ---
 
 ## Week 10 Matchup to Watch
