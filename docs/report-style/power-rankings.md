@@ -22,9 +22,11 @@ Ties in total score go to the better record, then to more PF.
 node scripts/power-rankings.mjs site/data/league.json 10 --proj proj.json --prev prev.json
 ```
 
-- `proj.json` holds next week's projected lineup score per team, read off the ESPN or Sleeper
-  matchup screen, for example `{"I'm all JAGged up": 107.96, "Author CGreer": 126.47}`.
-  The site data doesn't include projections yet, so this is the one number entered by hand.
+- Roster strength reads next week's projected lineup score. The ESPN site data now stores it
+  (`proj` on each team), so Fayetteville's Finest needs nothing typed in. Yellowstone's Sleeper data
+  doesn't have it yet, so pass `--proj proj.json` read off the Sleeper matchup screen, for example
+  `{"K9 Unit": 126.66, "Team SamYounger": 122.88}`. A `--proj` file always wins over the data.
+- The live site shows the same Option B scorecard (`powerRankings` in `site/js/insights.js`).
 - `prev.json` holds last week's published ranks, `{"Author CGreer": 8, ...}`, for movement markers.
   Running with `--json` saves a scorecard you can turn into next week's `prev.json`.
 - Tiers split the list at the biggest score gaps (`--tiers 5` by default), so a tier is a group of
@@ -34,9 +36,10 @@ node scripts/power-rankings.mjs site/data/league.json 10 --proj proj.json --prev
 
 The script was run on the live ESPN data for Fayetteville's Finest Week 9. Record, PF, recent and
 PA match the published scorecard to the hundredth for every team checked: Tucker 31.11 / 25.00 /
-15.00 / 3.76 and Gage 35.56 / 11.04 / 0.00 / 0.00. The only gap is the roster category, which needs
-the hand-entered projections (Tucker 6.60, Gage 6.70 in the published version). Silas, who got 0
-roster points, matches exactly at 12.94.
+15.00 / 3.76 and Gage 35.56 / 11.04 / 0.00 / 0.00. With the projections now in the data, the script
+reproduces the published Week 9 order exactly, 1 through 12. Totals land within a few tenths
+because projections move during the week (Gage 55.74 vs. 55.79 published), and Silas matches
+exactly at 12.94.
 
 ## Known limitations
 

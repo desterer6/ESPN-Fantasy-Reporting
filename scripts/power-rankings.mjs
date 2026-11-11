@@ -5,9 +5,9 @@
 //   node scripts/power-rankings.mjs <league.json> [week] [--proj projections.json] [--prev prev.json]
 //
 //   week          last completed week to rank through (default: latest completed week)
-//   --proj FILE   next week's projected starting-lineup points, {"Team name": 118.4, ...},
-//                 read off the Sleeper/ESPN matchup screen. Missing file = roster category left at 0
-//                 for everyone and flagged in the output.
+//   --proj FILE   next week's projected starting-lineup points, {"Team name": 118.4, ...}. Without it,
+//                 the `proj` values the fetch stores for next week are used when present (ESPN site);
+//                 if neither exists the roster category is 0 for everyone and flagged.
 //   --prev FILE   last published ranking, {"Team name": 3, ...}, for the (+/-) movement markers.
 //   --tiers N     number of tiers (default 5), split at the N-1 biggest score gaps.
 //   --json        print the scorecard as JSON (save it as next week's --prev source).
@@ -31,7 +31,14 @@ const data = JSON.parse(readFileSync(file, 'utf8'));
 const completed = data.weeks.filter(w => w.complete).map(w => w.week);
 const week = weekArg ? Number(weekArg) : Math.max(...completed);
 if (!completed.includes(week)) { console.error(`Week ${week} is not complete in ${file}.`); process.exit(1); }
-const proj = projFile ? JSON.parse(readFileSync(projFile, 'utf8')) : null;
+// Roster strength: next week's projected starting-lineup points. Prefer a hand-entered --proj file;
+// otherwise use the `proj` the site fetch stores on each team for the following week.
+const nextWeek = data.weeks.find(w => w.week === week + 1);
+const dataProj = nextWeek && nextWeek.matchups.some(m => m.teams.some(t => typeof t.proj === 'number'))
+  ? Object.fromEntries(nextWeek.matchups.flatMap(m => m.teams).filter(t => typeof t.proj === 'number').map(t => [`rid:${t.rid}`, t.proj]))
+  : null;
+const proj = projFile ? JSON.parse(readFileSync(projFile, 'utf8')) : dataProj;
+const projSource = projFile ? `--proj ${projFile}` : dataProj ? `Week ${week + 1} projections in the data file` : null;
 const prev = prevFile ? JSON.parse(readFileSync(prevFile, 'utf8')) : null;
 
 export const WEIGHTS = { record: 40, pf: 25, recent: 15, roster: 10, pa: 5, lineup: 5 };
@@ -39,7 +46,7 @@ export const WEIGHTS = { record: 40, pf: 25, recent: 15, roster: 10, pa: 5, line
 const label = t => (t.teamName && t.teamName.trim()) || (t.userId ? `Team ${t.name}` : t.name);
 
 // Season ledger through `week`.
-const L = Object.fromEntries(data.teams.map(t => [t.rosterId, { team: label(t), user: t.name, w: 0, l: 0, t: 0, pf: 0, pa: 0, scores: {} }]));
+const L = Object.fromEntries(data.teams.map(t => [t.rosterId, { rid: t.rosterId, team: label(t), user: t.name, w: 0, l: 0, t: 0, pf: 0, pa: 0, scores: {} }]));
 for (const wk of data.weeks) {
   if (!wk.complete || wk.week > week) continue;
   for (const m of wk.matchups) {
@@ -57,7 +64,7 @@ for (const r of rows) {
   const recentWeeks = Object.keys(r.scores).map(Number).sort((a, b) => b - a).slice(0, 3);
   r.recentAvg = recentWeeks.reduce((s, w) => s + r.scores[w], 0) / recentWeeks.length;
   r.games = r.w + r.l + r.t;
-  r.proj = proj ? proj[r.team] ?? proj[r.user] ?? null : null;
+  r.proj = proj ? proj[r.team] ?? proj[r.user] ?? proj[`rid:${r.rid}`] ?? null : null;
 }
 
 const minmax = (key) => {
@@ -105,7 +112,7 @@ console.log('|---|---|---|---|---|---|---|---|---|---|---|---|');
 for (const r of rows) {
   console.log(`| ${r.rank} | ${mv(r.move)} | ${r.tier} | ${r.team} | ${r.w}-${r.l}${r.t ? '-' + r.t : ''} | **${f(r.score)}** | ${f(r.c.record)} | ${f(r.c.pf)} | ${f(r.c.recent)} | ${f(r.c.roster)} | ${f(r.c.pa)} | ${f(r.c.lineup)} |`);
 }
-console.log('\nInputs: PF / PA / last-3 avg' + (proj ? ' / next-week projection' : ''));
+console.log('\nInputs: PF / PA / last-3 avg' + (proj ? ` / next-week projection (from ${projSource})` : ''));
 for (const r of rows) console.log(`- ${r.team}: ${f(r.pf)} / ${f(r.pa)} / ${f(r.recentAvg)}${proj ? ` / ${r.proj ?? 'MISSING'}` : ''}`);
 if (!proj) console.log('\n> Roster (10%) is 0 for everyone: pass --proj with next week\'s projected lineup scores.');
 if (proj && rows.some(r => r.proj == null)) console.log('\n> Some teams have no projection and got 0 roster points. Check the names in the --proj file.');
