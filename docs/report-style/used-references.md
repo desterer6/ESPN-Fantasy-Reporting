@@ -87,3 +87,15 @@ Logged from the final published recaps (what David posted, not the drafts).
   Keep the president premise, but give the nukes a rest.
 - OSHA/factory jokes for David's TE SZN: Weeks 8 and 9, plus the Week 9 matchup to watch.
 - Yellowstone tiers 2 weeks running: "Dictator vs. Revolution" headed the top tier in Weeks 8 and 9.
+
+## Earlier weeks (recovered tier names and lines)
+
+From [history/](history/). The recap bits themselves weren't recovered, so this is all that's known.
+
+- FF Week 1 tiers: FEMA Has Been Notified; Yeah... These Boys Can Cook; There's Something Here, I Think; A Win Is a Win, Don't Ask Questions. Week 1 opener: "NEW YEAR. SAME ABSOLUTE TOMFOOLERY."
+- FF Week 4 tiers: The Avengers Portal Is Open; Legitimately a Problem; One Good Week From Starting Propaganda; Record Looks Better Than the Vibes; The Season Starts Now Support Group; We Need to Have a Conversation.
+- Yellowstone Week 3 tiers: They're Making the Rest of Us Look Stupid; One Good Week From Becoming a Problem; The Record Is Actively Lying to You; I Can See the Vision... Kinda; Every Sunday Is a Performance Review.
+
+Early-season tiers were short, conversational phrases ("We Need to Have a Conversation"). From Week 7
+on they became institutions ("The Federal Reserve of Fantasy Football"). Switching back to the
+phrase style is an easy way to freshen up after several weeks of finance themes.

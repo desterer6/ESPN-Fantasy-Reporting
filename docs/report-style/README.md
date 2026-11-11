@@ -12,6 +12,7 @@ survives between sessions. Read these files before writing anything.
 | [used-references.md](used-references.md) | Every published bit and tier name, plus the freshness rules |
 | [examples/](examples/) | David's published reports, the gold standard for tone |
 | [archive/](archive/) | David's recovered final power rankings (Weeks 7-9) and matchups to watch (Weeks 8-10), verbatim |
+| [history/](history/) | Recovered Week 1-7 facts for both leagues: scores, rankings, picks, team renames |
 | [baselines/](baselines/) | Last published rank per team, the `--prev` file for movement markers |
 
 ## The two leagues are separate

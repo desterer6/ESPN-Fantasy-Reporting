@@ -43,3 +43,36 @@ Track organizations by manager, not by team name. Update this file each week wit
 
 David manages a team in both leagues (Dawg Check in Fayetteville's Finest, TE SZN in Yellowstone).
 Roast him like anyone else.
+
+## Team name history
+
+Confirmed by matching recovered Week 1-7 scores to the league data. Older names make good callbacks.
+
+**Fayetteville's Finest**
+
+| Current team | Earlier names (2026) |
+|---|---|
+| Love is in the Air (Odom) | Ivy League Mean Machine (Week 1), Carryin the Team on his DAK (Weeks 2-7) |
+| Dawg Check 🐶✅ (David) | King Deshaun CeeDees Nuts (Weeks 1-6) |
+| Waiver Wizard (Ryan) | Someone Calls Me Daddy (Weeks 1-5) |
+| Ladd News Bears (Silas) | Ladd To The Bone (Weeks 1-4) |
+| Im No Longer in RA (Gage) | Im in RA (Weeks 1-8) |
+
+**Yellowstone Ranch**
+
+| Current team | Earlier names (2026) |
+|---|---|
+| K9 Unit (Lathan) | R1 Daejon's Lovers (Week 1) |
+| TE SZN (David) | DJ Strike (Weeks 1-3) |
+| Joshing Around (Folger) | Brock to the Future (Weeks 1-2), Fully Caffreynated (Weeks 3-4) |
+| Sippin on Charbonnet (Grant) | GsMoveNSilenceLikeEgbuka (Weeks 1-4) |
+| Finding Nico (Garrett) | What the Price (Weeks 1-4) |
+| FELONS 🚬 (Ben) | THE FELONS |
+
+## Season arcs worth calling back
+
+- **FF:** Gage started 5-0, and Repp ended it in Week 6. Parker started 0-5 and then won two straight.
+  Greer has bounced between 161 and 66. Tucker and Gage have traded first place since Week 6.
+- **Yellowstone:** Lathan has been unbeaten since Week 1. Wingfield started 4-0 and has lost five
+  straight since. Clonch lost Week 1 by 0.10 (148.46-148.56) and has been at the top of PF with a bad
+  record ever since. Sam's streak reached six before Manny ended it in Week 9.
