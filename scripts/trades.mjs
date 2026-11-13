@@ -16,6 +16,8 @@ import { POSITION, PRO_TEAM } from './espn.mjs';
 
 export const TRADE_TYPES = ['TRADE_PROPOSAL', 'TRADE_ACCEPT', 'TRADE_UPHOLD', 'TRADE_VETO', 'TRADE_DECLINE', 'TRADE_ERROR'];
 
+export const isTradeRow = tx =>
+  typeof tx?.type === 'string' && tx.type.startsWith('TRADE');
 const isTrade = tx => typeof tx?.type === 'string' && tx.type.startsWith('TRADE');
 const firstDate = (...xs) => xs.map(Number).filter(x => Number.isFinite(x) && x > 0).sort((a, b) => a - b)[0] ?? null;
 
@@ -69,18 +71,17 @@ export function tradesFromTransactions(transactions = [], players = {}) {
   const out = [];
   for (const [id, txs] of groups) {
     const has = (type, status) => txs.some(t => t.type === type && (!status || t.status === status));
-    const accepted = has('TRADE_ACCEPT') || has('TRADE_UPHOLD') || has('TRADE_PROPOSAL', 'EXECUTED');
+    // The original offer is the row that lists the players. Its status tells where the trade stands:
+    // PENDING while the league can still veto, EXECUTED once it goes through. TRADE_UPHOLD rows are
+    // individual managers' votes and don't change the outcome on their own.
+    const source = txs.find(t => (t.items || []).some(i => i.type === 'TRADE'));
+    if (!source) continue; // players unknown: ESPN didn't return the original offer
+    const accepted = source.status === 'EXECUTED' || has('TRADE_ACCEPT') || source.type === 'TRADE_ACCEPT';
     if (!accepted) continue; // offers nobody accepted are private business
-    if (txs.every(t => t.status === 'CANCELED' || t.status === 'FAILED') && !has('TRADE_VETO')) continue;
-
     const vetoed = has('TRADE_VETO') || txs.some(t => t.status === 'VETOED');
-    // An accepted trade still inside the review period stays pending until an uphold (or veto) row appears.
-    const inReview = has('TRADE_ACCEPT', 'PENDING') && !has('TRADE_UPHOLD');
-    const done = !vetoed && !inReview && (has('TRADE_UPHOLD') || txs.some(t => t.status === 'EXECUTED'));
-    const status = vetoed ? 'vetoed' : done ? 'done' : 'pending';
+    if (!vetoed && (source.status === 'CANCELED' || source.status === 'FAILED')) continue; // withdrawn or declined
+    const status = vetoed ? 'vetoed' : source.status === 'EXECUTED' ? 'done' : 'pending';
 
-    // The player moves: from whichever row lists them (proposal or accept carry the same items).
-    const source = txs.find(t => (t.items || []).some(i => i.type === 'TRADE')) || txs[0];
     const byTeam = new Map();
     for (const it of source.items || []) {
       if (it.type !== 'TRADE' || it.toTeamId == null || it.playerId == null) continue;
@@ -91,9 +92,10 @@ export function tradesFromTransactions(transactions = [], players = {}) {
     }
     if (!byTeam.size) continue;
 
-    const acceptRow = txs.find(t => t.type === 'TRADE_ACCEPT');
-    const date = firstDate(acceptRow?.proposedDate, acceptRow?.processDate)
-      ?? firstDate(...txs.map(t => t.proposedDate), ...txs.map(t => t.processDate));
+    // When the deal was struck: the offer's accepted date, else the earliest accept row.
+    const acceptRows = txs.filter(t => t.type === 'TRADE_ACCEPT' && t !== source);
+    const date = firstDate(source.acceptedDate) ?? firstDate(...acceptRows.map(t => t.proposedDate))
+      ?? firstDate(source.processDate, source.proposedDate);
     out.push({
       id: String(id),
       date: date ? new Date(date).toISOString() : null,
