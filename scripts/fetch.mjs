@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
-import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES } from './trades.mjs';
+import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES, isTradeRow } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(await fs.readFile(path.join(root, 'config.json'), 'utf8'));
@@ -100,6 +100,30 @@ try {
       if (e.fatal) throw e;
       console.error(`Pending trades not read: ${e.message}`);
     }
+    // Completed trades show up only as accept/uphold rows that point at the original offer, which
+    // carries the players. Ask ESPN for those offers by ID (in batches) so past trades fill in too.
+    const have = new Set(transactions.map(t => t.id));
+    const missing = [...new Set(transactions.filter(isTradeRow).map(t => t.relatedTransactionId).filter(id => id && !have.has(id)))];
+    let found = 0;
+    for (let i = 0; i < missing.length; i += 25) {
+      const ids = missing.slice(i, i + 25);
+      const byId = { 'x-fantasy-filter': JSON.stringify({ transactions: { filterIds: { value: ids } } }) };
+      for (const query of ['?view=mTransactions2', `?view=mTransactions2&scoringPeriodId=${lastSp}`]) {
+        try {
+          const r = await get(query, byId);
+          const rows = (r.transactions || []).filter(t => !have.has(t.id));
+          rows.forEach(t => have.add(t.id));
+          transactions.push(...rows);
+          found += rows.length;
+          if (rows.length) break;
+        } catch (e) {
+          if (e.fatal) throw e;
+          console.error(`Trade offers by ID not read: ${e.message}`);
+        }
+        await sleep(300);
+      }
+    }
+    console.log(`Original trade offers: looked up ${missing.length}, found ${found}`);
     // Shape only (types and statuses), never member data, so a parsing problem can be diagnosed from the log.
     const shape = {};
     for (const t of transactions) { const k = `${t.type}/${t.status}`; shape[k] = (shape[k] || 0) + 1; }

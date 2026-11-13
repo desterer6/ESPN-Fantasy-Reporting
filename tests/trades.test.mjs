@@ -84,12 +84,24 @@ ok(rows[0].href === '#/news/c-2026-11-13-trade', 'trade links to the hand-writte
 ok(rows[1].href === '#/news/t-b1', 'otherwise to the automatic story');
 ok(rows[0].sides[0].name === 'Team X' && rows[0].sides[0].gets[0] === 'Rookie Back', 'who got what');
 
-// An accepted trade still in review stays pending even if another row in its group says EXECUTED.
+// Shapes ESPN actually sends (seen in the live league):
+// - in review: the offer itself becomes TRADE_ACCEPT/PENDING with the items; TRADE_UPHOLD rows are managers' votes.
 const review = tradesFromTransactions([
-  { id: 'p1', type: 'TRADE_PROPOSAL', status: 'EXECUTED', items: [{ type: 'TRADE', playerId: 101, fromTeamId: 1, toTeamId: 2 }, { type: 'TRADE', playerId: 202, fromTeamId: 2, toTeamId: 1 }] },
-  { id: 'p2', type: 'TRADE_ACCEPT', status: 'PENDING', relatedTransactionId: 'p1', proposedDate: T },
+  { id: 'p1', type: 'TRADE_ACCEPT', status: 'PENDING', acceptedDate: T, proposedDate: T - 6e5, items: [{ type: 'TRADE', playerId: 101, fromTeamId: 1, toTeamId: 2 }, { type: 'TRADE', playerId: 202, fromTeamId: 2, toTeamId: 1 }] },
+  { id: 'p2', type: 'TRADE_ACCEPT', relatedTransactionId: 'p1', proposedDate: T },
+  { id: 'p3', type: 'TRADE_UPHOLD', status: 'EXECUTED', relatedTransactionId: 'p1', proposedDate: T + 6e5 },
 ], players);
-ok(review[0].status === 'pending', `in-review trade is pending (got ${review[0].status})`);
+ok(review.length === 1 && review[0].status === 'pending', `in-review trade with uphold votes is pending (got ${review[0]?.status})`);
+ok(review[0].date === new Date(T).toISOString(), 'date is when it was accepted');
+// - completed: accept/uphold rows point at the original offer (fetched by ID), which is EXECUTED.
+const past = tradesFromTransactions([
+  { id: 'q2', type: 'TRADE_ACCEPT', relatedTransactionId: 'q1', proposedDate: T - 5e8 },
+  { id: 'q3', type: 'TRADE_UPHOLD', status: 'EXECUTED', relatedTransactionId: 'q1', proposedDate: T - 4e8 },
+  { id: 'q1', type: 'TRADE_PROPOSAL', status: 'EXECUTED', proposedDate: T - 6e8, items: [{ type: 'TRADE', playerId: 203, fromTeamId: 2, toTeamId: 1 }, { type: 'TRADE', playerId: 101, fromTeamId: 1, toTeamId: 2 }] },
+], players);
+ok(past.length === 1 && past[0].status === 'done' && past[0].id === 'q1', 'completed past trade is official');
+ok(past[0].date === new Date(T - 5e8).toISOString(), 'past trade dated by its accept');
+ok(tradesFromTransactions([{ id: 'r2', type: 'TRADE_ACCEPT', relatedTransactionId: 'r1' }], players).length === 0, 'no players known: left out rather than guessed');
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
