@@ -1,6 +1,7 @@
 import * as A from './analytics.js';
 import { h, hideTip } from './ui.js';
 import { tickerItems } from './insights.js';
+import { withTradeNews } from './trades.js';
 import { renderHome } from './pages/home.js';
 import { renderScores, scoreStrip } from './pages/scores.js';
 import { renderStandings } from './pages/standings.js';
@@ -156,6 +157,7 @@ async function main() {
     const [data, c] = await Promise.all([loadJson('data/league.json'), loadJson('data/content.json', null)]);
     if (c) content = c;
     ctx = A.prepare(data);
+    content = withTradeNews(ctx, content); // trades pulled from ESPN become League News stories
     setupMePicker(data);
     document.getElementById('league-name').textContent = data.league.name;
     const initials = data.league.name.replace(/[^A-Za-z ]/g, '').split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();

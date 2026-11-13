@@ -7,7 +7,7 @@
 //                   Google Sheet; only rows the owner ticks "Approved" are published (see README).
 // Everything is stored as plain text. The site escapes it before display; nothing is trusted as HTML.
 
-export const LIMITS = { headline: 120, story: 1200, byline: 60, report: 20000, title: 140 };
+export const LIMITS = { headline: 120, story: 1200, post: 4000, byline: 60, report: 20000, title: 140 };
 
 const CONTROL = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g;
 export function clean(s, max) {
@@ -89,8 +89,8 @@ export function reportsFromArchive(files = []) {
   }).filter(r => r && r.title && r.body);
 }
 
-// League news the owner posts directly (news/*.md in the repo): headline, byline and date lines,
-// then "---", then the story as plain text. Shown alongside approved reader submissions.
+// League news the owner posts directly (news/*.md in the repo): headline, byline and date lines
+// (plus an optional "trade:" line), then "---", then the story as plain text. Shown alongside approved reader submissions.
 export function newsFromFiles(files = []) {
   return files.map(({ name, text }) => {
     const fm = frontMatter(text);
@@ -99,9 +99,11 @@ export function newsFromFiles(files = []) {
     return {
       id: `c-${slugOf(name)}`,
       headline: clean(fm.meta.headline, LIMITS.headline),
-      story: clean(fm.body, LIMITS.story),
+      story: clean(fm.body, LIMITS.post),
       byline: clean(fm.meta.byline, LIMITS.byline),
       date: isNaN(date) ? null : date.toISOString(),
+      // "trade: Player A, Player B" marks a hand-written trade story, so the automatic one from ESPN is skipped.
+      ...(fm.meta.trade ? { trade: fm.meta.trade.split(',').map(x => clean(x, LIMITS.byline)).filter(Boolean) } : {}),
     };
   }).filter(n => n && n.headline);
 }
