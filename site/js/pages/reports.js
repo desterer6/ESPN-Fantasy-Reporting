@@ -1,7 +1,7 @@
 import { h, f1 } from '../ui.js';
 import { renderMarkdown } from '../markdown.js';
 import { weekStory } from '../insights.js';
-import { fmtDate } from './news.js';
+import { fmtDate, tradesCard } from './news.js';
 
 export function byTheNumbers(ctx, w) {
   const s = w != null && weekStory(ctx, w);
@@ -39,6 +39,7 @@ export function renderReports(ctx, content, id) {
     h('p', { class: 'dek' }, 'The commissioner’s recap, posted every Tuesday after Monday Night Football.'),
     h('div', { class: 'layout' },
       h('div', {},
+        tradesCard(ctx, content),
         h('section', { class: 'card' }, h('h2', {}, 'All reports'),
           reports.length ? h('ul', { class: 'hl' }, reports.map(x => h('li', {}, h('a', { href: `#/reports/${x.id}` },
             h('div', { class: 't' }, x.title),

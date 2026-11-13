@@ -1,6 +1,6 @@
 // Trades from ESPN -> automatic news stories, on fictional data. No network: node tests/trades.test.mjs
 import { tradesFromTransactions, playersFromRosters } from '../scripts/trades.mjs';
-import { tradeNews, withTradeNews } from '../site/js/trades.js';
+import { tradeNews, withTradeNews, seasonTrades, seasonLabel } from '../site/js/trades.js';
 import { newsFromFiles } from '../scripts/content.mjs';
 import { privacyChecks } from './checks.mjs';
 
@@ -75,6 +75,21 @@ ok(merged.news.length === 3 && !merged.news.some(n => n.id === 't-a1'), 'hand-wr
 ok(merged.news[0].headline === 'BIG TRADE', 'merged news newest first');
 ok(tradeNews({ ...ctx, data: {} }).length === 0, 'no trades in older data files');
 ok(newsFromFiles([{ name: 'x.md', text: `headline: Long\n---\n${'a'.repeat(3000)}` }])[0].story.length === 3000, 'owner posts can run longer than reader submissions');
+
+// Trade Reports block on the Reports tab.
+ok(seasonLabel('2026') === '2026-27' && seasonLabel(2099) === '2099-00' && seasonLabel(null) === '', 'season label rolls over by year');
+const rows = seasonTrades(ctx, { news: posts });
+ok(rows.length === 3 && rows[0].id === 'a1', 'every trade listed, newest first');
+ok(rows[0].href === '#/news/c-2026-11-13-trade', 'trade links to the hand-written story when there is one');
+ok(rows[1].href === '#/news/t-b1', 'otherwise to the automatic story');
+ok(rows[0].sides[0].name === 'Team X' && rows[0].sides[0].gets[0] === 'Rookie Back', 'who got what');
+
+// An accepted trade still in review stays pending even if another row in its group says EXECUTED.
+const review = tradesFromTransactions([
+  { id: 'p1', type: 'TRADE_PROPOSAL', status: 'EXECUTED', items: [{ type: 'TRADE', playerId: 101, fromTeamId: 1, toTeamId: 2 }, { type: 'TRADE', playerId: 202, fromTeamId: 2, toTeamId: 1 }] },
+  { id: 'p2', type: 'TRADE_ACCEPT', status: 'PENDING', relatedTransactionId: 'p1', proposedDate: T },
+], players);
+ok(review[0].status === 'pending', `in-review trade is pending (got ${review[0].status})`);
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

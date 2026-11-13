@@ -153,6 +153,18 @@ aside .tile .d { grid-column: 1 / -1; }
 
 /* Headline lists (news, reports) */
 .hl { list-style: none; margin: 0; padding: 0; }
+.trades { list-style: none; margin: 0; padding: 0; }
+.trades li { border-top: 1px solid var(--line); }
+.trades li:first-child { border-top: 0; }
+.trades a { display: block; padding: 9px 0; color: var(--text); font-size: 13.5px; line-height: 1.35; }
+.trades a:hover strong { text-decoration: underline; }
+.tr-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 3px; }
+.tr-date { font-size: 11.5px; color: var(--muted); }
+.tr-status { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.tr-status.pending { color: #b45309; border-color: currentColor; }
+.tr-status.done { color: #15803d; border-color: currentColor; }
+.tr-status.vetoed { color: #b91c1c; border-color: currentColor; }
+.tr-side { overflow-wrap: anywhere; }
 .hl li { border-top: 1px solid var(--line); }
 .hl li:first-child { border-top: 0; }
 .hl a { display: block; padding: 11px 0; }
