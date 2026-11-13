@@ -1,5 +1,5 @@
 // Trades from ESPN -> automatic news stories, on fictional data. No network: node tests/trades.test.mjs
-import { tradesFromTransactions, playersFromRosters } from '../scripts/trades.mjs';
+import { tradesFromTransactions, playersFromRosters, tradesFromActivity, mergeTrades } from '../scripts/trades.mjs';
 import { tradeNews, withTradeNews, seasonTrades, seasonLabel } from '../site/js/trades.js';
 import { newsFromFiles } from '../scripts/content.mjs';
 import { privacyChecks } from './checks.mjs';
@@ -102,6 +102,22 @@ const past = tradesFromTransactions([
 ok(past.length === 1 && past[0].status === 'done' && past[0].id === 'q1', 'completed past trade is official');
 ok(past[0].date === new Date(T - 5e8).toISOString(), 'past trade dated by its accept');
 ok(tradesFromTransactions([{ id: 'r2', type: 'TRADE_ACCEPT', relatedTransactionId: 'r1' }], players).length === 0, 'no players known: left out rather than guessed');
+
+// Activity feed: one topic per completed trade, one 244 message per player moved.
+const topics = [
+  { id: 't1', date: T - 9e8, messages: [
+    { messageTypeId: 244, targetId: 101, from: 1, to: 2 }, { messageTypeId: 244, targetId: 203, from: 2, to: 1 },
+    { messageTypeId: 178, targetId: 7, to: 1 }] },
+  { id: 't2', date: T - 8e8, messages: [{ messageTypeId: 179, targetId: 8, from: 3 }] },
+];
+const feed = tradesFromActivity(topics, players, [1, 2, 3]);
+ok(feed.length === 1 && feed[0].status === 'done', 'one completed trade from the feed');
+ok(feed[0].sides.find(s => s.rid === 2).gets[0].n === 'Ace Runner' && feed[0].sides.find(s => s.rid === 1).gets[0].n === 'Deep Threat', 'feed: who got whom');
+ok(tradesFromActivity(topics, players, [1, 2, 3], 'from')[0].sides.find(s => s.rid === 1).gets[0].n === 'Ace Runner', 'receiver field can be flipped');
+ok(tradesFromActivity(topics, players, [9]).length === 0, 'unknown teams ignored');
+const merged2 = mergeTrades(past, [...feed, ...tradesFromActivity([{ id: 'x', date: T - 5e8, messages: [
+  { messageTypeId: 244, targetId: 203, from: 2, to: 1 }, { messageTypeId: 244, targetId: 101, from: 1, to: 2 }] }], players, [1, 2])]);
+ok(merged2.length === 1, `same players to the same teams counted once (got ${merged2.length})`);
 
 console.log(`${passed} checks passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
