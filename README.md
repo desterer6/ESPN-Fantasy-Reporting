@@ -10,6 +10,7 @@ No servers, no database, no AI, no manual data entry, and no cost.
 - **Standings**: W-L, PF/PA, streak, all-play record and luck
 - **Weekly Report**: the commissioner's report, posted from a GitHub issue (owner only)
 - **News**: stories submitted by members through a Google Form and approved by the commissioner
+- **Trades**: every accepted trade on ESPN becomes a League News story automatically (pending vote, official, or vetoed)
 - **Stats Lab**: season history, schedule luck and roster breakdowns
 
 ## How it works
@@ -25,6 +26,8 @@ ESPN API  →  scripts/fetch.mjs  →  scripts/espn.mjs (clean + transform)  →
 | `scripts/fetch.mjs` | Network + files only: calls ESPN, hands the responses to `espn.mjs`, writes `site/data/league.json` |
 | `scripts/espn.mjs` | Pure ESPN → site transform (no I/O). The only file that knows ESPN's format |
 | `site/js/analytics.js` | All calculations (pure functions, shared by the site and the tests) |
+| `scripts/trades.mjs` | Pure ESPN transactions → trades transform (who got which players, pending/official/vetoed) |
+| `site/js/trades.js` | Turns those trades into League News stories, skipping any trade you already wrote up by hand |
 | `scripts/content.mjs` | Pure parsing of weekly-report issues and the news sheet (owner/approval rules live here) |
 | `scripts/fetch-content.mjs` | Reads the issues and the news sheet, writes `site/data/content.json` |
 | `site/js/insights.js` | Rule-based storylines: weekly superlatives, streaks, power index, ticker items |
@@ -159,3 +162,13 @@ Works with a private repo. Create a Pages project from this repo (build command:
 Site design and analytics adapted from [YellowstoneFFL](https://github.com/lathangregg/YellowstoneFFL) by Lathan Gregg (MIT). MIT, see [LICENSE](LICENSE).
 ESPN's API is unofficial and undocumented; if ESPN changes it, only `scripts/espn.mjs` and `scripts/fetch.mjs` should need updating.
 League data belongs to ESPN and the league members.
+
+## Trade news (automatic)
+
+Each data refresh also reads ESPN's transactions, so an accepted trade shows up in League News and the ticker
+within about 12 hours (or right away with Actions → Run workflow). The story says whether the trade is waiting on
+the league vote, official, or vetoed, and updates as that changes.
+
+ESPN only knows about players. Draft picks or side deals are not in ESPN's data, so for a big one write it up
+yourself as `news/<date>-<name>.md` and add a `trade:` line naming the players, for example
+`trade: Jonathan Taylor, Kyle Monangai`. The hand-written story then replaces the automatic one.

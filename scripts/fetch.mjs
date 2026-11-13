@@ -10,6 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
+import { tradesFromTransactions, playersFromRosters } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(await fs.readFile(path.join(root, 'config.json'), 'utf8'));
@@ -76,11 +77,33 @@ try {
   const dest = path.join(root, 'site', 'data', 'league.json');
   await fs.mkdir(path.dirname(dest), { recursive: true });
 
+  let prev = null;
+  try { prev = JSON.parse(await fs.readFile(dest, 'utf8')); } catch { /* first run */ }
+
+  // Trades become automatic news stories on the site. Optional: if ESPN's transactions view
+  // fails, keep the trades from the last good run and still publish the scores.
+  try {
+    const lastSp = Math.max(1, Number(league.scoringPeriodId) || 1);
+    const transactions = [];
+    for (let sp = 1; sp <= lastSp; sp++) {
+      const r = await get(`?view=mTransactions2&scoringPeriodId=${sp}`);
+      transactions.push(...(r.transactions || []));
+      await sleep(300);
+    }
+    const rosters = await get('?view=mRoster');
+    const names = playersFromRosters(rosters, { ...out.players });
+    out.trades = tradesFromTransactions(transactions, names);
+    console.log(`Trades: ${out.trades.length} (${out.trades.filter(t => t.status === 'pending').length} awaiting the league vote)`);
+  } catch (e) {
+    if (e.fatal) throw e;
+    out.trades = prev?.trades || [];
+    console.error(`Trades not refreshed (kept ${out.trades.length}): ${e.message}`);
+  }
+
   // Keep the existing file (and its timestamp) when only the timestamp changed,
   // so scheduled runs don't create empty commits.
   let unchanged = false;
   try {
-    const prev = JSON.parse(await fs.readFile(dest, 'utf8'));
     const strip = o => JSON.stringify({ ...o, generatedAt: null });
     unchanged = strip(prev) === strip(out);
   } catch { /* first run */ }

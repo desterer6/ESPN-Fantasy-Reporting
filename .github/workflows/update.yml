@@ -57,6 +57,9 @@ jobs:
       - name: Test league history (offline fixture)
         run: node tests/history.test.mjs
 
+      - name: Test trades and trade news (offline fixture)
+        run: node tests/trades.test.mjs
+
       - name: Collect weekly reports and approved news
         env:
           GITHUB_TOKEN: ${{ github.token }}
