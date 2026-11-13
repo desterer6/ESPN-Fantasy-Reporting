@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
-import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES, isTradeRow } from './trades.mjs';
+import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES, isTradeRow, tradesFromActivity, mergeTrades, TRADE_MESSAGE } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(await fs.readFile(path.join(root, 'config.json'), 'utf8'));
@@ -128,10 +128,42 @@ try {
     const shape = {};
     for (const t of transactions) { const k = `${t.type}/${t.status}`; shape[k] = (shape[k] || 0) + 1; }
     console.log(`Transactions seen: ${JSON.stringify(shape)}`);
-    console.log(`Transaction rows (diagnostic, no member data):\n${describeTransactions(transactions).join('\n')}`);
     const rosters = await get('?view=mRoster');
     const names = playersFromRosters(rosters, { ...out.players });
     out.trades = tradesFromTransactions(transactions, names);
+
+    // Completed trades: ESPN's activity feed lists who got which player. Optional: if it fails,
+    // the trades found above still publish.
+    try {
+      const topics = [];
+      for (let offset = 0; offset < 500; offset += 50) {
+        const filter = { topics: {
+          filterType: { value: ['ACTIVITY_TRANSACTIONS'] }, limit: 50, limitPerMessageSet: { value: 25 }, offset,
+          sortMessageDate: { sortPriority: 1, sortAsc: false }, sortFor: { sortPriority: 2, sortAsc: false },
+          filterIncludeMessageTypeIds: { value: [TRADE_MESSAGE] } } };
+        const r = await get('/communication/?view=kona_league_communication', { 'x-fantasy-filter': JSON.stringify(filter) });
+        const page = r.topics || [];
+        topics.push(...page);
+        if (page.length < 50) break;
+        await sleep(300);
+      }
+      // Check which side of a message is the receiving team: a player who hasn't moved since is
+      // still on that team's roster. Counts only, for the log.
+      const ownerOf = {};
+      for (const t of rosters.teams || []) for (const e of t.roster?.entries || []) ownerOf[e.playerId ?? e.playerPoolEntry?.id] = t.id;
+      let toMatches = 0, fromMatches = 0;
+      for (const tp of topics) for (const m of tp.messages || []) if (m.messageTypeId === TRADE_MESSAGE) {
+        if (ownerOf[m.targetId] === m.to) toMatches++;
+        if (ownerOf[m.targetId] === m.from) fromMatches++;
+      }
+      const receiver = fromMatches > toMatches ? 'from' : 'to';
+      const fromFeed = tradesFromActivity(topics, names, out.teams.map(t => t.rosterId), receiver);
+      console.log(`Activity feed: ${topics.length} trade topics -> ${fromFeed.length} trades (players still with "to" team: ${toMatches}, with "from" team: ${fromMatches}; receiver = ${receiver})`);
+      out.trades = mergeTrades(out.trades, fromFeed);
+    } catch (e) {
+      if (e.fatal) throw e;
+      console.error(`Activity feed not read: ${e.message}`);
+    }
     console.log(`Trades: ${out.trades.length} (${out.trades.filter(t => t.status === 'pending').length} awaiting the league vote)`);
   } catch (e) {
     if (e.fatal) throw e;

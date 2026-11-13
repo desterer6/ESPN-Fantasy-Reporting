@@ -120,3 +120,50 @@ export function describeTransactions(transactions = []) {
     return `${short(t.id)} ${t.type}/${t.status} sp=${t.scoringPeriodId} rel=${rel} team=${t.teamId} items=[${items}] ${dates} keys=${keys}`;
   });
 }
+
+// ESPN's league activity feed (the "Recent Activity" screen) is the only place that lists the
+// players in completed trades: one topic per trade, one message per player moved
+// (messageTypeId 244). Each message names the player (targetId) and the two teams (from/to).
+export const TRADE_MESSAGE = 244;
+
+/**
+ * @param topics   topics from /communication/?view=kona_league_communication
+ * @param players  { [playerId]: { n, p, t } }
+ * @param teamIds  the league's team IDs (anything else in from/to is ignored)
+ * @param receiver which message field names the team that got the player ('to' or 'from')
+ */
+export function tradesFromActivity(topics = [], players = {}, teamIds = [], receiver = 'to') {
+  const giver = receiver === 'to' ? 'from' : 'to';
+  const valid = new Set(teamIds.map(Number));
+  const out = [];
+  for (const topic of topics) {
+    const moves = (topic.messages || []).filter(m => m.messageTypeId === TRADE_MESSAGE && m.targetId != null);
+    if (!moves.length) continue;
+    const byTeam = new Map();
+    for (const m of moves) {
+      const to = Number(m[receiver]), from = Number(m[giver]);
+      if (!valid.has(to)) continue;
+      const p = players[m.targetId] || players[String(m.targetId)] || { n: `Player ${m.targetId}`, p: '?', t: null };
+      if (!byTeam.has(to)) byTeam.set(to, []);
+      byTeam.get(to).push({ id: String(m.targetId), n: p.n, p: p.p, t: p.t });
+      if (valid.has(from) && from !== to && !byTeam.has(from)) byTeam.set(from, []);
+    }
+    if (byTeam.size < 2) continue;
+    const date = firstDate(topic.date, ...moves.map(m => m.date));
+    out.push({
+      id: `a${topic.id}`,
+      date: date ? new Date(date).toISOString() : null,
+      status: 'done',
+      sides: [...byTeam].map(([rid, gets]) => ({ rid, gets })).sort((a, b) => a.rid - b.rid),
+    });
+  }
+  return out;
+}
+
+// Same players changing hands = the same trade, whichever source reported it.
+const tradeKey = t => t.sides.flatMap(s => s.gets.map(g => `${g.id}>${s.rid}`)).sort().join(',');
+export function mergeTrades(primary = [], extra = []) {
+  const keys = new Set(primary.map(tradeKey));
+  return [...primary, ...extra.filter(t => !keys.has(tradeKey(t)))]
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
