@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
-import { tradesFromTransactions, playersFromRosters } from './trades.mjs';
+import { tradesFromTransactions, playersFromRosters, TRADE_TYPES } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(await fs.readFile(path.join(root, 'config.json'), 'utf8'));
@@ -84,12 +84,26 @@ try {
   // fails, keep the trades from the last good run and still publish the scores.
   try {
     const lastSp = Math.max(1, Number(league.scoringPeriodId) || 1);
+    // ESPN only returns the transaction types named in this filter header.
+    const txFilter = { 'x-fantasy-filter': JSON.stringify({ transactions: { filterType: { value: TRADE_TYPES } } }) };
     const transactions = [];
     for (let sp = 1; sp <= lastSp; sp++) {
-      const r = await get(`?view=mTransactions2&scoringPeriodId=${sp}`);
+      const r = await get(`?view=mTransactions2&scoringPeriodId=${sp}`, txFilter);
       transactions.push(...(r.transactions || []));
       await sleep(300);
     }
+    // Trades still in the league's review (veto) period are listed as pending, not as transactions.
+    try {
+      const pending = await get('?view=mPendingTransactions');
+      transactions.push(...(pending.pendingTransactions || []), ...(pending.transactions || []));
+    } catch (e) {
+      if (e.fatal) throw e;
+      console.error(`Pending trades not read: ${e.message}`);
+    }
+    // Shape only (types and statuses), never member data, so a parsing problem can be diagnosed from the log.
+    const shape = {};
+    for (const t of transactions) { const k = `${t.type}/${t.status}`; shape[k] = (shape[k] || 0) + 1; }
+    console.log(`Transactions seen: ${JSON.stringify(shape)}`);
     const rosters = await get('?view=mRoster');
     const names = playersFromRosters(rosters, { ...out.players });
     out.trades = tradesFromTransactions(transactions, names);
