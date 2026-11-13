@@ -9,7 +9,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
+import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods, POSITION, PRO_TEAM } from './espn.mjs';
 import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES, isTradeRow, tradesFromActivity, mergeTrades, TRADE_MESSAGE } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -163,6 +163,24 @@ try {
     } catch (e) {
       if (e.fatal) throw e;
       console.error(`Activity feed not read: ${e.message}`);
+    }
+    // Players since dropped aren't on any roster: look their names up in ESPN's player pool.
+    const unknown = [...new Set((out.trades || []).flatMap(t => t.sides.flatMap(sd => sd.gets)).filter(g => /^Player \d+$/.test(g.n)).map(g => Number(g.id)))];
+    if (unknown.length) {
+      try {
+        const pf = { 'x-fantasy-filter': JSON.stringify({ players: { filterIds: { value: unknown } } }) };
+        const r = await get('?view=kona_playercard', pf);
+        const found = {};
+        for (const e of r.players || []) {
+          const p = e.player || e;
+          if (p?.id != null && p.fullName) found[p.id] = { n: p.fullName, p: POSITION[p.defaultPositionId] || '?', t: PRO_TEAM[p.proTeamId] ?? null };
+        }
+        for (const t of out.trades) for (const sd of t.sides) for (const g of sd.gets) if (found[g.id]) Object.assign(g, found[g.id]);
+        console.log(`Player names looked up: ${unknown.length}, found ${Object.keys(found).length}`);
+      } catch (e) {
+        if (e.fatal) throw e;
+        console.error(`Player names not looked up: ${e.message}`);
+      }
     }
     console.log(`Trades: ${out.trades.length} (${out.trades.filter(t => t.status === 'pending').length} awaiting the league vote)`);
   } catch (e) {
