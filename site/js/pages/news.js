@@ -1,4 +1,5 @@
 import { h } from '../ui.js';
+import { seasonTrades, seasonLabel } from '../trades.js';
 
 export const fmtDate = d => (d ? new Date(d).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : '');
 
@@ -15,6 +16,27 @@ export function newsList(items) {
   return h('ul', { class: 'hl' }, items.map(n => h('li', {}, h('a', { href: `#/news/${n.id}` },
     h('div', { class: 't' }, n.headline),
     h('div', { class: 'm' }, [n.byline ? `By ${n.byline}` : 'League desk', n.date ? fmtDate(n.date) : null].filter(Boolean).join(' · '))))));
+}
+
+const STATUS_LABEL = { pending: 'Pending vote', done: 'Official', vetoed: 'Vetoed' };
+
+// Compact list of every trade this season (from ESPN), at the top of the Reports tab. The title follows the
+// league's season, so it rolls over to the next season on its own.
+export function tradesCard(ctx, content) {
+  if (!ctx) return null;
+  const trades = seasonTrades(ctx, content);
+  const label = seasonLabel(ctx.data?.league?.season);
+  return h('section', { class: 'card trades-card' },
+    h('h2', {}, `${label ? `${label} ` : ''}Trade Reports`),
+    trades.length
+      ? h('ul', { class: 'trades' }, trades.map(t => h('li', {}, h('a', { href: t.href },
+          h('div', { class: 'tr-top' },
+            h('span', { class: 'tr-date' }, fmtDate(t.date)),
+            h('span', { class: `tr-status ${t.status}` }, STATUS_LABEL[t.status] || STATUS_LABEL.pending)),
+          ...t.sides.map(s => h('div', { class: 'tr-side' },
+            h('strong', {}, s.name), ' gets ', s.gets.length ? s.gets.join(', ') : 'no players')))))) 
+      : h('p', { class: 'empty' }, 'No trades yet this season.'),
+    h('p', { class: 'note' }, 'Pulled from ESPN automatically. Draft picks are not tracked by ESPN, so see the story for the full terms.'));
 }
 
 export function renderNews(content, id) {

@@ -74,7 +74,9 @@ export function tradesFromTransactions(transactions = [], players = {}) {
     if (txs.every(t => t.status === 'CANCELED' || t.status === 'FAILED') && !has('TRADE_VETO')) continue;
 
     const vetoed = has('TRADE_VETO') || txs.some(t => t.status === 'VETOED');
-    const done = !vetoed && (has('TRADE_UPHOLD') || txs.some(t => t.status === 'EXECUTED'));
+    // An accepted trade still inside the review period stays pending until an uphold (or veto) row appears.
+    const inReview = has('TRADE_ACCEPT', 'PENDING') && !has('TRADE_UPHOLD');
+    const done = !vetoed && !inReview && (has('TRADE_UPHOLD') || txs.some(t => t.status === 'EXECUTED'));
     const status = vetoed ? 'vetoed' : done ? 'done' : 'pending';
 
     // The player moves: from whichever row lists them (proposal or accept carry the same items).
@@ -100,4 +102,19 @@ export function tradesFromTransactions(transactions = [], players = {}) {
     });
   }
   return out.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
+
+// One line per distinct trade row: type, status, which date fields are set, how it links to other
+// rows, and its item types. Field names and short ID prefixes only: no member data.
+export function describeTransactions(transactions = []) {
+  const seen = new Map();
+  for (const t of transactions) if (t && t.id != null && !seen.has(t.id)) seen.set(t.id, t);
+  const short = id => String(id).slice(0, 8);
+  return [...seen.values()].filter(isTrade).map(t => {
+    const rel = t.relatedTransactionId ? `${short(t.relatedTransactionId)}${seen.has(t.relatedTransactionId) ? '' : '(missing)'}` : '-';
+    const items = (t.items || []).map(i => `${i.type}:${i.fromTeamId}>${i.toTeamId}`).join(',') || 'none';
+    const dates = ['proposedDate', 'processDate', 'acceptedDate', 'expirationDate'].filter(k => t[k]).map(k => `${k}=${new Date(t[k]).toISOString().slice(0, 16)}`).join(' ');
+    const keys = Object.keys(t).filter(k => !/member|owner|user|swid/i.test(k)).sort().join('|');
+    return `${short(t.id)} ${t.type}/${t.status} sp=${t.scoringPeriodId} rel=${rel} team=${t.teamId} items=[${items}] ${dates} keys=${keys}`;
+  });
 }

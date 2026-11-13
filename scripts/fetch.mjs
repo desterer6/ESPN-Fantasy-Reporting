@@ -10,7 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods } from './espn.mjs';
-import { tradesFromTransactions, playersFromRosters, TRADE_TYPES } from './trades.mjs';
+import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const cfg = JSON.parse(await fs.readFile(path.join(root, 'config.json'), 'utf8'));
@@ -104,6 +104,7 @@ try {
     const shape = {};
     for (const t of transactions) { const k = `${t.type}/${t.status}`; shape[k] = (shape[k] || 0) + 1; }
     console.log(`Transactions seen: ${JSON.stringify(shape)}`);
+    console.log(`Transaction rows (diagnostic, no member data):\n${describeTransactions(transactions).join('\n')}`);
     const rosters = await get('?view=mRoster');
     const names = playersFromRosters(rosters, { ...out.players });
     out.trades = tradesFromTransactions(transactions, names);

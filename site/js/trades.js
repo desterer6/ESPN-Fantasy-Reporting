@@ -23,16 +23,47 @@ const STATUS = {
   },
 };
 
+// Hand-written stories that cover a trade: news posts with a "trade:" line.
+const coverage = content => (content.news || []).filter(n => Array.isArray(n.trade) && n.trade.length)
+  .map(n => ({ id: n.id, set: new Set(n.trade.map(norm)) }));
+const usableSides = (ctx, tr) => (tr.sides || []).filter(s => ctx.byRid?.[s.rid]);
+const playerKeys = sides => sides.flatMap(s => s.gets.map(g => norm(g.n)));
+// Same players on both lists (a smaller earlier trade with one of those players still gets its own story).
+const coveringStory = (cov, names) => cov.find(c => c.set.size === new Set(names).size && names.every(n => c.set.has(n)));
+
+// "2026" -> "2026-27": the NFL season runs into the next year.
+export const seasonLabel = season => {
+  const y = parseInt(season, 10);
+  return Number.isFinite(y) ? `${y}-${String(y + 1).slice(-2)}` : '';
+};
+
+// This season's trades for the News tab, newest first, each linked to its story.
+export function seasonTrades(ctx, content = {}) {
+  const cov = coverage(content);
+  return (ctx?.data?.trades || []).map(tr => {
+    const sides = usableSides(ctx, tr);
+    const names = playerKeys(sides);
+    if (sides.length < 2 || !names.length) return null;
+    const story = coveringStory(cov, names);
+    return {
+      id: tr.id,
+      date: tr.date,
+      status: tr.status,
+      href: `#/news/${story ? story.id : `t-${tr.id}`}`,
+      sides: sides.map(s => ({ rid: s.rid, name: ctx.name(s.rid), gets: s.gets.map(g => g.n) })),
+    };
+  }).filter(Boolean).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+}
+
 export function tradeNews(ctx, content = {}) {
   const trades = ctx?.data?.trades || [];
-  const covered = (content.news || []).filter(n => Array.isArray(n.trade) && n.trade.length).map(n => new Set(n.trade.map(norm)));
+  const cov = coverage(content);
   const out = [];
   for (const tr of trades) {
-    const sides = (tr.sides || []).filter(s => ctx.byRid?.[s.rid]);
-    const names = sides.flatMap(s => s.gets.map(g => norm(g.n)));
+    const sides = usableSides(ctx, tr);
+    const names = playerKeys(sides);
     if (sides.length < 2 || !names.length) continue;
-    // Same players on both lists (a smaller earlier trade with one of those players still gets its own story).
-    if (covered.some(set => set.size === new Set(names).size && names.every(n => set.has(n)))) continue;
+    if (coveringStory(cov, names)) continue;
 
     const st = STATUS[tr.status] || STATUS.pending;
     const total = names.length;
