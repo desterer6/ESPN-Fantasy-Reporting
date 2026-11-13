@@ -14,6 +14,8 @@
 // rows (memberId, proposingTeam owners) are never copied.
 import { POSITION, PRO_TEAM } from './espn.mjs';
 
+export const TRADE_TYPES = ['TRADE_PROPOSAL', 'TRADE_ACCEPT', 'TRADE_UPHOLD', 'TRADE_VETO', 'TRADE_DECLINE', 'TRADE_ERROR'];
+
 const isTrade = tx => typeof tx?.type === 'string' && tx.type.startsWith('TRADE');
 const firstDate = (...xs) => xs.map(Number).filter(x => Number.isFinite(x) && x > 0).sort((a, b) => a - b)[0] ?? null;
 
