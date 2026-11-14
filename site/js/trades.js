@@ -24,8 +24,8 @@ const STATUS = {
 };
 
 // Hand-written stories that cover a trade: news posts with a "trade:" line.
-const coverage = content => (content.news || []).filter(n => Array.isArray(n.trade) && n.trade.length)
-  .map(n => ({ id: n.id, set: new Set(n.trade.map(norm)) }));
+const coverage = content => (content.news || []).flatMap(n => (Array.isArray(n.trades) ? n.trades : [])
+  .map(names => ({ id: n.id, set: new Set(names.map(norm)) })));
 const usableSides = (ctx, tr) => (tr.sides || []).filter(s => ctx.byRid?.[s.rid]);
 const playerKeys = sides => sides.flatMap(s => s.gets.map(g => norm(g.n)));
 // Same players on both lists (a smaller earlier trade with one of those players still gets its own story).
