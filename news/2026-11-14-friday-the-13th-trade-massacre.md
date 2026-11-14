@@ -1,7 +1,7 @@
 headline: 🔪 FRIDAY THE 13TH TRADE MASSACRE 🔪 Brock Bowers and George Kittle both change hands after dark
 byline: The Trade Desk
 date: 2026-11-14T03:50:00Z
-trade: Brock Bowers; George Kittle, Dallas Goedert
+trade: Brock Bowers, Demarcus Robinson; George Kittle, Dallas Goedert
 ---
 THE TAYLOR TRADE WAS JUST THE OPENING SCENE 🎬🔪 ON THE NIGHT OF FRIDAY THE 13TH, TWO MORE FRONT OFFICES WENT INTO THE WOODS AND ONLY THE TIGHT ENDS CAME OUT 😭🌲
 
@@ -9,7 +9,7 @@ TRADE #1 🔪
 
 CGreer (Author CGreer) gets: Brock Bowers, Ryan's 4th round pick, AND his own 7th round pick back 📦
 
-Ryan (Waiver Wizard) gets: CGreer's 2027 1st round pick 🥇
+Ryan (Waiver Wizard) gets: CGreer's 2027 1st round pick 🥇 plus Demarcus Robinson to fill the roster spot
 
 LET THE RECORD SHOW CGREER TRADED BROCK BOWERS TO RYAN ON OCTOBER 20TH. LESS THAN A MONTH LATER HE PAID A FIRST ROUND PICK TO GET HIM BACK 🔁💸 THIS IS NOT A TRADE, THIS IS A RETURN WITH A VERY EXPENSIVE RESTOCKING FEE 🧾🫪
 
