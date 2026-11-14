@@ -69,7 +69,10 @@ ok(news[2].headline.startsWith('TRADE VETOED') && news[2].headline.includes('sta
 
 // A hand-written story with a "trade:" line replaces the automatic one.
 const posts = newsFromFiles([{ name: '2026-11-13-trade.md', text: 'headline: BIG TRADE\ndate: 2026-11-13T15:00:00Z\ntrade: Rookie Back, ace runner\n---\nHand written.' }]);
-ok(JSON.stringify(posts[0].trade) === '["Rookie Back","ace runner"]', 'trade line parsed');
+ok(JSON.stringify(posts[0].trades) === '[["Rookie Back","ace runner"]]', 'trade line parsed');
+const two = newsFromFiles([{ name: 'two.md', text: 'headline: Two\ntrade: Rookie Back, ace runner; Deep Threat, Old Starter, Player 555, Player 444\n---\nx' }]);
+ok(two[0].trades.length === 2, 'one story can cover two trades');
+ok(tradeNews(ctx, { news: two }).length === 1 && seasonTrades(ctx, { news: two }).filter(r => r.href === '#/news/c-two').length === 2, 'both covered trades link to the one story');
 const merged = withTradeNews(ctx, { news: posts, reports: [] });
 ok(merged.news.length === 3 && !merged.news.some(n => n.id === 't-a1'), 'hand-written trade story wins');
 ok(merged.news[0].headline === 'BIG TRADE', 'merged news newest first');

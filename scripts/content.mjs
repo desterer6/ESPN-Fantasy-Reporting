@@ -102,8 +102,10 @@ export function newsFromFiles(files = []) {
       story: clean(fm.body, LIMITS.post),
       byline: clean(fm.meta.byline, LIMITS.byline),
       date: isNaN(date) ? null : date.toISOString(),
-      // "trade: Player A, Player B" marks a hand-written trade story, so the automatic one from ESPN is skipped.
-      ...(fm.meta.trade ? { trade: fm.meta.trade.split(',').map(x => clean(x, LIMITS.byline)).filter(Boolean) } : {}),
+      // "trade: Player A, Player B" marks a hand-written trade story, so the automatic one from ESPN is
+      // skipped. One story can cover several trades: separate each trade's players with ";".
+      ...(fm.meta.trade ? { trades: fm.meta.trade.split(';')
+        .map(g => g.split(',').map(x => clean(x, LIMITS.byline)).filter(Boolean)).filter(g => g.length) } : {}),
     };
   }).filter(n => n && n.headline);
 }
